@@ -48,7 +48,6 @@ try {
 // ----------------------------verify---------------------------//
 
 const verify=async(req,res)=>{
-  console.log(req.body)
     const { otp, email } = req.body;
     try {
       if (!otp || !email) {
