@@ -5,7 +5,7 @@ const authRoute=express.Router()
 authRoute.post('/signup',signup);
 authRoute.post('/verify',verify);
 authRoute.post('/signin',signin);
-authRoute.post('/signup',logout);
+authRoute.post('/logout',logout);
 authRoute.post('/resend-otp',resendOTP);
 
-export default authRoute
+export default authRoute;

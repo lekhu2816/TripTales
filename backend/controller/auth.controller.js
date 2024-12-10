@@ -1,7 +1,9 @@
 import { hashPassword } from "../utils/hashPassword.js";
+import bcrypt from 'bcrypt'
 import { userModel } from "../models/user.model.js"
 import { generateToken } from "../utils/generateToken.js";
 import { sendOTPEmail,sendWelcomeMail } from "../utils/sendMail.js";
+
 // ----------------------------Signup---------------------------//
 
 const signup=async(req,res)=>{
@@ -46,18 +48,19 @@ try {
 // ----------------------------verify---------------------------//
 
 const verify=async(req,res)=>{
+  console.log(req.body)
     const { otp, email } = req.body;
     try {
       if (!otp || !email) {
         return res.status(400).json({
-          success: flase,
+          success: false,
           message: "All fields are required",
         });
       }
       let user = await userModel.findOne({ email });
   
       if (Date.now() > user.verificationTokenExpiresAt) {
-        return res.status(401).json({
+        return res.status(400).json({
           success: false,
           message: "OTP Expired",
         });
@@ -83,7 +86,8 @@ const verify=async(req,res)=>{
         message: "Account Created Successfully",
       });
     } catch (error) {
-      res.status(401).json({
+      console.log(error)
+      res.status(500).json({
         success: false,
         message: "Error While verifying user",
       });
@@ -170,6 +174,7 @@ const signin = async (req, res) => {
         message: "User login successfully",
       });
     } catch (error) {
+      console.log(error)
       res.status(401).json({
         success: false,
         message: "Error occured while signin",
@@ -184,9 +189,7 @@ const logout = async (req, res) => {
     try {
       res.clearCookie("token",{
         httpOnly: true,
-        sameSite: "strict",
-        maxAge: 0}
-      );
+      });
       res.status(200).json({
         success: true,
         message: "Logged out successfully",

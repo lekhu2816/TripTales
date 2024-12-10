@@ -8,7 +8,7 @@ import authRoute from './routes/auth.routes.js';
 
 const app=express();
 const corsOption={
-    origin:"*",
+    origin:"http://localhost:5173",
     credentials:true
 }
 
