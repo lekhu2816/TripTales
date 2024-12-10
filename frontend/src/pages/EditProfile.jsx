@@ -9,7 +9,7 @@ const EditProfile = () => {
   const [uploadCoverPhoto, setUploadCoverPhoto]=useState(null);
   const [profilePhoto, setProfilePhoto] = useState(profile);
   const [uploadProfilePhoto, setUploadProfilePhoto]=useState(null);
-  console.log(coverPhoto)
+
   useEffect(() => {
     setShowDropdown(false);
   }, []);
@@ -18,11 +18,7 @@ const EditProfile = () => {
    const file=e.target.files[0];
    setUploadCoverPhoto(file);
    if (file && file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setCoverPhoto(reader.result); 
-    };
-    reader.readAsDataURL(file);
+    setCoverPhoto(URL.createObjectURL(file))
   } else {
     alert('Please select a valid image file');
   }
@@ -32,11 +28,7 @@ const EditProfile = () => {
     const file=e.target.files[0];
     setUploadProfilePhoto(file);
     if (file && file.type.startsWith('image/')) {
-     const reader = new FileReader();
-     reader.onloadend = () => {
-       setProfilePhoto(reader.result); 
-     };
-     reader.readAsDataURL(file);
+     setProfilePhoto(URL.createObjectURL(file))
    } else {
      alert('Please select a valid image file');
    }

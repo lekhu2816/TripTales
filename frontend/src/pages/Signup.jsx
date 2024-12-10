@@ -1,28 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { AppContext } from "../context/Context";
+import { toast } from "react-toastify";
 
 const Signup = () => {
-    const navigate=useNavigate();
+  const { SERVER_URL, setIsAuthenticated } = useContext(AppContext);
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [userData, setUserData] = useState({name:"", email: "", password: "" });
-  
-  const onHandleChange=(event)=>{
-    console.log(userData)
-    const {name,value}=event.target
-    setUserData((prev)=>({...prev,[name]:value}))
-  }
-  const onHandleSubmit=async(event)=>{
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const onHandleChange = (event) => {
+    const { name, value } = event.target;
+    setUserData((prev) => ({ ...prev, [name]: value }));
+  };
+  const onHandleSubmit = async (event) => {
     event.preventDefault();
-    navigate('/auth/verify')
-  }
+    const url = `${SERVER_URL}/api/auth/signup`;
+    try {
+      const response = await axios.post(url, userData, {
+        withCredentials: true,
+      });
+      if (response.status == 200) {
+        toast.success(response.data.message);
+      
+        navigate("/auth/verify", { state: userData.email});
+        setUserData({
+          name: "",
+          email: "",
+          password: "",
+        });
+      }
+    } catch (error) {
+      if (error.status == 400) {
+        toast.error(error.response.data.message);
+      }
+    }
+  };
   return (
     <div className="h-full flex flex-col justify-center items-center bg-gray-50">
       <div className="text-center my-4">
         <h1 className="text-primary text-2xl font-bold">Welcome</h1>
         <p className="text-secondary">Signup to your create account</p>
       </div>
-      <form onSubmit={onHandleSubmit} className=" p-2 flex flex-col gap-4 w-[70%] mobile:w-full">
-
+      <form
+        onSubmit={onHandleSubmit}
+        className=" p-2 flex flex-col gap-4 w-[70%] mobile:w-full"
+      >
         {/* --------------------------username---------------------------- */}
         <div className="p-2 flex items-center gap-2 border border-black rounded-sm">
           <i className="material-icons">person</i>
@@ -33,6 +61,7 @@ const Signup = () => {
             value={userData.name}
             placeholder="Username"
             onChange={onHandleChange}
+            required
           />
         </div>
         {/* --------------------------Email-------------------------------- */}
@@ -46,6 +75,7 @@ const Signup = () => {
             value={userData.email}
             placeholder="Email"
             onChange={onHandleChange}
+            required
           />
         </div>
 
@@ -60,6 +90,7 @@ const Signup = () => {
             value={userData.password}
             placeholder="Password"
             onChange={onHandleChange}
+            required
           />
           <i
             onClick={() => setShowPassword((prev) => !prev)}
@@ -83,7 +114,7 @@ const Signup = () => {
           }}
           className="cursor-pointer underline"
         >
-         Signin
+          Signin
         </span>
       </p>
     </div>

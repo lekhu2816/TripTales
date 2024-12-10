@@ -5,6 +5,7 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
+
 import RootLayout from "./layout/RootLayout";
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -22,11 +23,14 @@ import Saved from "./components/Saved";
 import Upload from "./pages/Upload";
 import UploadPost from "./components/UploadPost";
 import UploadGallery from "./components/UploadGallery";
+import ProtectedRoutes from "./ProtectedRoutes";
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
-        <Route path="/" element={<RootLayout />}>
+        <Route path="/" element={<ProtectedRoutes>
+          <RootLayout/>
+        </ProtectedRoutes>}>
           <Route index element={<Home />} />
           <Route path="about" element={<About />} />
           <Route path="profile" element={<Profile />}>
@@ -51,7 +55,10 @@ const App = () => {
       </>
     )
   );
-  return <RouterProvider router={router} />;
+  return(
+    <RouterProvider router={router} >
+      </RouterProvider>
+  );
 };
 
 export default App;
