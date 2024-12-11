@@ -25,6 +25,7 @@ const Signup = () => {
       const response = await axios.post(url, userData, {
         withCredentials: true,
       });
+      console.log(response)
       if (response.status == 200) {
         toast.success(response.data.message);
       
@@ -36,7 +37,10 @@ const Signup = () => {
         });
       }
     } catch (error) {
+      console.log(error)
       if (error.status == 400) {
+      
+
         toast.error(error.response.data.message);
       }
     }

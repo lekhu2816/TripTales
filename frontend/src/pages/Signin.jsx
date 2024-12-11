@@ -27,7 +27,7 @@ const Signin = () => {
        navigate('/')
       }
     } catch (error) {
-     if(error.status==400){
+     if(error.status==400||error.status==500){
       toast.error(error.response.data.message)
      }
     }

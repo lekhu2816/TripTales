@@ -1,30 +1,15 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AppContext } from "../context/Context";
-import axios from "axios";
-import { toast } from "react-toastify";
+
 const Sidebar = () => {
-  const { SERVER_URL, setIsAuthenticated } = useContext(AppContext);
-  const logout = async () => {
-    const url = `${SERVER_URL}/api/auth/logout`;
-    try {
-      const response = await axios.post(url, {}, { withCredentials: true });
-      if (response.status == 200) {
-        toast.success(response.data.message);
-        setIsAuthenticated(false);
-        localStorage.setItem("isAuthenticated", false);
-      }
-    } catch (error) {
-      if(response.status==400||response.status==500){
-        toast.error(error.response.data,message)
-      }
-    }
-  };
+  const {logout,userData} = useContext(AppContext);
+  
   return (
     <div className="bg-white w-56 shadow-2xl  flex flex-col ">
       <div className="px-4 py-2">
         <p className="text-xl font-bold italic text-red-600">Hey!</p>
-        <p className="text-lg font-medium">Lekhansh Sachan</p>
+        <p className="text-lg font-medium">{userData.userName}</p>
       </div>
       <hr />
 

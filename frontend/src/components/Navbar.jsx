@@ -6,7 +6,7 @@ import Sidebar from "./Sidebar";
 import { AppContext } from "../context/Context";
 
 const Navbar = () => {
-   const {showDropdown,setShowDropdown}=useContext(AppContext);
+   const {showDropdown,setShowDropdown,userData}=useContext(AppContext);
   return (
     <>
       <nav className="z-10 w-full bg-white fixed top-0 h-14 shadow-md px-10 flex justify-between items-center tablet:hidden mobile:hidden">
@@ -68,7 +68,7 @@ const Navbar = () => {
           </div>
 
           <div onClick={()=>setShowDropdown(true)}>
-            <img className="w-8 h-8 rounded-full" src={profile} alt="" />
+            <img className="w-8 h-8 rounded-full" src={userData.profilePhoto} alt="" />
           </div>
         </div>
         {
