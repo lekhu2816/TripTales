@@ -127,7 +127,7 @@ const resendOTP = async (req, res) => {
         message: "OTP is send to your registered email",
       });
     } catch (error) {
-      res.status(401).json({
+      res.status(500).json({
         success: false,
         message: "Error occured while sending otp",
       });
@@ -173,8 +173,7 @@ const signin = async (req, res) => {
         message: "User login successfully",
       });
     } catch (error) {
-      console.log(error)
-      res.status(401).json({
+      res.status(500).json({
         success: false,
         message: "Error occured while signin",
       });

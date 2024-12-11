@@ -4,6 +4,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser';
 import connectDB from './config/db.js';
 import authRoute from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
 
 
 const app=express();
@@ -24,6 +25,7 @@ app.use(cookieParser());
 // -------------------------API Endpoints--------------------------------------//
 
 app.use('/api/auth',authRoute);
+app.use('/api/user',userRoutes)
 
 app.get('/',(req,res)=>{
 res.send("Hello from TripTales")

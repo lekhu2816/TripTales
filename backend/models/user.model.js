@@ -2,10 +2,19 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    userName: { type: String, default: "" },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    coverPicture: { type: String, default: "" },
-    profilePicture: { type: String, default: "" },
+    coverPhoto: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/dlkex5mge/image/upload/v1733920004/coverPic_cpjxlq.jpg",
+    },
+    profilePhoto: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/dlkex5mge/image/upload/v1733919894/userLogo_haalu6.png",
+    },
     bio: { type: String, default: "" },
     gender: { type: String, enum: ["male", "female"] },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
