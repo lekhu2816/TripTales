@@ -125,4 +125,85 @@ const editProfile = async (req, res) => {
   }
 };
 
-export { getProfile, editProfile, editProfilePhoto, editCoverPhoto };
+// -----------------------------Get  suggested user---------------------//
+
+const getSuggestedUser = async (req,res) => {
+  const { id } = req.user;
+  try {
+    const suggestedUser = await userModel
+      .find({ _id: { $ne: id } })
+      .select("_id name userName profilePhoto");
+      res.status(200).json({
+        success:true,
+        suggestedUser
+      })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error while getting suggested user",
+    });
+  }
+};
+
+
+// ------------------------------follow and unfollow---------------//
+
+const followAndUnfollow=async(req,res)=>{
+  const followerUser=req.user.id;  //lekhu
+  const followingToUser=req.params.id; //Himanshu
+  try {
+    if(followerUser==followingToUser){
+      return res.status(400).json({
+        success:false,
+        message:"Cannot follow/unfollow Youself"
+      })
+    }
+    const user=await userModel.findById(followerUser);
+    const targetUser=await userModel.findById(followingToUser);
+     if(!user||!targetUser){
+      return res.status(400).json({
+        success:false,
+        message:"User not found"
+      })
+     }
+     const isFollowing=user.following.includes(followingToUser);
+     if(isFollowing){
+      const response=await Promise.all([
+    userModel.updateOne({_id:followerUser},{$pull:{following:followingToUser}}),
+    userModel.updateOne({_id:followingToUser},{$pull:{followers:followerUser}})
+          ])
+         
+          res.status(200).json({
+            success:true,
+            message:"Unfollowed Successfully"
+           })
+     }
+     else{
+    const response=await Promise.all([
+    userModel.updateOne({_id:followerUser},{$push:{following:followingToUser}}),
+    userModel.updateOne({_id:followingToUser},{$push:{followers:followerUser}})
+      ])
+     
+      res.status(200).json({
+        success:true,
+        message:"followed Successfully"
+       })
+     }
+   
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error while follow and unfollow",
+    });
+  }
+  
+}
+
+export {
+  getProfile,
+  editProfile,
+  editProfilePhoto,
+  editCoverPhoto,
+  getSuggestedUser,
+  followAndUnfollow
+};

@@ -4,7 +4,9 @@ import {
   editCoverPhoto,
   editProfile,
   editProfilePhoto,
+  followAndUnfollow,
   getProfile,
+  getSuggestedUser,
 } from "../controller/user.controller.js";
 import upload from "../utils/multer.js";
 const userRoute = express.Router();
@@ -23,5 +25,9 @@ userRoute.patch(
   editCoverPhoto
 );
 
+userRoute.get('/suggested-user',authMiddleware,getSuggestedUser)
 userRoute.patch("/update-profile", authMiddleware, editProfile);
+userRoute.post('/follow-unfollow/:id',authMiddleware,followAndUnfollow)
+
+
 export default userRoute;

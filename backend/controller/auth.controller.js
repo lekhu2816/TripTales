@@ -19,7 +19,7 @@ try {
  if(user){
     return res.status(400).json({
         success:false,
-        messgae:"User already exist"
+        message:"User already exist"
     })
  }
  const verificationToken=Math.floor(100000+Math.random()*900000);
