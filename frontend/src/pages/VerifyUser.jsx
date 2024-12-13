@@ -3,8 +3,10 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/Context";
 import { toast } from "react-toastify";
 import axios from "axios";
+import {Loader1} from "../components/Loader";
 
 const VerifyUser = () => {
+  const [loading, setLoading] = useState(false);
   const { SERVER_URL, setIsAuthenticated } = useContext(AppContext);
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,6 +31,7 @@ const VerifyUser = () => {
     }
   };
   const handleSubmit = async () => {
+    setLoading(true);
     let verificationToken = "";
     for (let index in otp) {
       verificationToken = verificationToken + otp[index];
@@ -51,6 +54,7 @@ const VerifyUser = () => {
         toast.error(error.response.data.message);
       }
     }
+    setLoading(false);
   };
   const [counter, setCounter] = useState(59);
   const counterFunction = () => {
@@ -65,25 +69,27 @@ const VerifyUser = () => {
     }, 1000);
   };
 
-  
-const resendOtp=async()=>{
-  try {
-    
-   const url=`${SERVER_URL}/api/auth/resend-otp`
-   const response =await axios.post(url,{email},{withCredentials:true});
-   console.log(response)
-   if(response.status==200){
-    toast.success(response.data.message);
-    setCounter(59)
-    counterFunction()
-   }
-  } catch (error) {
-    console.log(error)
-    if(error.status==400||error.status==500){
-      toast.error(error.response.data.message)
+  const resendOtp = async () => {
+    try {
+      const url = `${SERVER_URL}/api/auth/resend-otp`;
+      const response = await axios.post(
+        url,
+        { email },
+        { withCredentials: true }
+      );
+      console.log(response);
+      if (response.status == 200) {
+        toast.success(response.data.message);
+        setCounter(59);
+        counterFunction();
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.status == 400 || error.status == 500) {
+        toast.error(error.response.data.message);
+      }
     }
-  }
-}
+  };
 
   useEffect(() => {
     counterFunction();
@@ -139,12 +145,16 @@ const resendOtp=async()=>{
           )}
         </div>
 
-        <button
-          onClick={handleSubmit}
-          className="my-2 py-1 bg-primary text-white w-full rounded-[5px]"
-        >
-          verify
-        </button>
+        {loading ? (
+          <Loader1></Loader1>
+        ) : (
+          <button
+            onClick={handleSubmit}
+            className="my-2 py-2 bg-primary text-white w-full rounded-[5px]"
+          >
+            verify
+          </button>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import upload from "../assets/upload.jpg";
 import star from "../assets/star.png";
+import { Loader1 } from "./Loader";
 const UploadPost = () => {
+  const [loading,setLoading]=useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(upload);
 
@@ -72,7 +74,9 @@ const UploadPost = () => {
 
     {/* -----------------------uploading posts-------------------------- */}
 
-      <button className="rounded-md p-2 bg-primary text-white">Share Post</button>
+     {
+      loading?<Loader1></Loader1>: <button className="rounded-md py-2 bg-primary text-white">Share Post</button>
+     }
 
     {/* -------------------upload gallery----------------------------- */}
      <div className="flex justify-end font-medium">

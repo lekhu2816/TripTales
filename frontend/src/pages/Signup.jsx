@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AppContext } from "../context/Context";
 import { toast } from "react-toastify";
-
+import {Loader1} from "../components/Loader";
 const Signup = () => {
+  const [loading,setLoading]=useState(false);
   const { SERVER_URL, setIsAuthenticated } = useContext(AppContext);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +20,7 @@ const Signup = () => {
     setUserData((prev) => ({ ...prev, [name]: value }));
   };
   const onHandleSubmit = async (event) => {
+    setLoading(true)
     event.preventDefault();
     const url = `${SERVER_URL}/api/auth/signup`;
     try {
@@ -44,6 +46,7 @@ const Signup = () => {
         toast.error(error.response.data.message);
       }
     }
+    setLoading(false)
   };
   return (
     <div className="h-full flex flex-col justify-center items-center bg-gray-50">
@@ -106,9 +109,11 @@ const Signup = () => {
 
         {/* ---------------------------Login button-------------------------- */}
 
-        <button className="p-1 text-xl bg-primary text-white font-medium rounded-sm">
+        {
+          loading?<Loader1></Loader1>:<button className="py-2 bg-primary text-white font-medium rounded-sm">
           Create Account
         </button>
+        }
       </form>
       <p className="my-4">
         Already have account ?{" "}

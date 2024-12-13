@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AppContext } from "../context/Context";
 import {toast } from 'react-toastify';
+import {Loader1} from "../components/Loader";
 
 const Signin = () => {
+  const [loading,setLoading]=useState(false)
   const {SERVER_URL,setIsAuthenticated}=useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
   const [userData, setUserData] = useState({ email: "", password: "" });
@@ -14,6 +16,7 @@ const Signin = () => {
     setUserData((prev) => ({ ...prev, [name]: value }));
   };
   const onSubmitHandle = async (event) => {
+    setLoading(true)
     event.preventDefault();
     const url = `${SERVER_URL}/api/auth/signin`;
     try {
@@ -31,6 +34,7 @@ const Signin = () => {
       toast.error(error.response.data.message)
      }
     }
+    setLoading(false)
   };
   return (
     <div className="h-full flex flex-col justify-center items-center bg-gray-50">
@@ -77,9 +81,13 @@ const Signin = () => {
 
         {/* ---------------------------Login button-------------------------- */}
 
-        <button className="p-1 text-xl bg-primary text-white font-medium rounded-sm">
+        {
+          loading?<Loader1></Loader1>:
+        
+        <button className="py-2  bg-primary text-white font-medium rounded-sm">
           Login
         </button>
+        }
       </form>
       <p className="my-4">
         Don't have account ?{" "}

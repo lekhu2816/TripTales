@@ -2,8 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/Context";
 import {toast } from 'react-toastify';
 import axios from 'axios'
+import { Loader2 } from "../components/Loader";
 
 const EditProfile = () => {
+  const [loading1,setLoading1]=useState(false);
+  const [loading2,setLoading2]=useState(false);
+  const [loading3,setLoading3]=useState(false);
   const { setShowDropdown,SERVER_URL ,logout,userData} = useContext(AppContext);
 
   const [highlight, setHighlight] = useState(false);
@@ -54,6 +58,7 @@ const onChangeCoverPhoto = (e) => {
   // -----------------Adding cover photo---------------------//
 
   const addCoverPhoto=async()=>{
+    setLoading1(true)
     const url=`${SERVER_URL}/api/user/update-coverPhoto`
     const formData=new FormData();
     formData.append('image',uploadCoverPhoto);
@@ -74,12 +79,15 @@ const onChangeCoverPhoto = (e) => {
         toast.error(error.response.data.message)
        }
     }
+    setLoading1(false);
+    setUploadCoverPhoto(null);
   }
 
   
   // -----------------Adding profile photo---------------------//
 
   const addProfilePhoto=async()=>{
+    setLoading2(true)
     const url=`${SERVER_URL}/api/user/update-profilePhoto`
     const formData=new FormData();
     formData.append('image',uploadProfilePhoto);
@@ -100,6 +108,9 @@ const onChangeCoverPhoto = (e) => {
         toast.error(error.response.data.message)
        }
     }
+    setLoading2(false);
+    setUploadProfilePhoto(null)
+    
   }
 
 
@@ -107,6 +118,7 @@ const onChangeCoverPhoto = (e) => {
   // -----------------Adding user Details--------------------//
 
   const handleFormSubmit = async (e) => {
+    setLoading3(true)
     e.preventDefault();
     const url=`${SERVER_URL}/api/user/update-profile`
     try {
@@ -123,6 +135,8 @@ const onChangeCoverPhoto = (e) => {
         logout();
       }
     }
+    setLoading3(false)
+    setHighlight(false);
   };
 
   return (
@@ -155,9 +169,13 @@ const onChangeCoverPhoto = (e) => {
                   </div>
                 </label>
                 {uploadCoverPhoto ? (
-                  <button onClick={addCoverPhoto} className="rounded-lg text-sm px-4 py-2 bg-gray-300">
+                  <>
+                  {
+                    loading1? <Loader2/>: <button onClick={addCoverPhoto} className="rounded-lg text-sm px-4 py-2 bg-gray-300">
                     Update
                   </button>
+                  }
+                  </>
                 ) : (
                   <button className="rounded-lg text-sm px-4 py-2 bg-gray-100 text-gray-400">
                     Update
@@ -194,9 +212,13 @@ const onChangeCoverPhoto = (e) => {
               </label>
 
               {uploadProfilePhoto ? (
-                <button onClick={addProfilePhoto} className="rounded-lg text-sm px-4 py-2 bg-gray-300">
+                <>
+                {
+                  loading2 ?<Loader2/>:<button onClick={addProfilePhoto} className="rounded-lg text-sm px-4 py-2 bg-gray-300">
                   Update
                 </button>
+                }
+                </>
               ) : (
                 <button className="rounded-lg text-sm px-4 py-2 bg-gray-100 text-gray-400">
                   Update
@@ -252,9 +274,13 @@ const onChangeCoverPhoto = (e) => {
 
               <div className="flex justify-end">
                 {highlight ? (
-                  <button className="rounded-lg text-sm px-4 py-2 bg-gray-300">
-                    Update
-                  </button>
+                 <>
+                 {
+                  loading3 ? <Loader2/> :  <button className="rounded-lg text-sm px-4 py-2 bg-gray-300">
+                  Update
+                </button>
+                 }
+                 </>
                 ) : (
                   <button className="rounded-lg text-sm px-4 py-2 bg-gray-100 text-gray-400">
                     Update
