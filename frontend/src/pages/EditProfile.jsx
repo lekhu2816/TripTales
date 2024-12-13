@@ -5,6 +5,7 @@ import axios from 'axios'
 import { Loader2 } from "../components/Loader";
 
 const EditProfile = () => {
+  const {fetchUserData}=useContext(AppContext);
   const [loading1,setLoading1]=useState(false);
   const [loading2,setLoading2]=useState(false);
   const [loading3,setLoading3]=useState(false);
@@ -69,12 +70,13 @@ const onChangeCoverPhoto = (e) => {
        },
        withCredentials: true,
       })
-      console.log(response)
+      
       if(response.status==200){
         toast.success(response.data.message)
+        fetchUserData();
       }
     } catch (error) {
-      console.log(error)
+      
       if(error.status==400||error.status==500){
         toast.error(error.response.data.message)
        }
@@ -98,12 +100,13 @@ const onChangeCoverPhoto = (e) => {
        },
        withCredentials: true,
       })
-      console.log(response)
+      
       if(response.status==200){
         toast.success(response.data.message)
+        fetchUserData()
       }
     } catch (error) {
-      console.log(error)
+      
       if(error.status==400||error.status==500){
         toast.error(error.response.data.message)
        }
@@ -123,9 +126,10 @@ const onChangeCoverPhoto = (e) => {
     const url=`${SERVER_URL}/api/user/update-profile`
     try {
       const response=await axios.patch(url,userInfo,{withCredentials:true})
-      console.log(response);
+     
       if(response.status==200){
         toast.success(response.data.message)
+        fetchUserData()
       }
     } catch (error) {
       if(error.status==400||error.status==500){

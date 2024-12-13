@@ -32,17 +32,6 @@ const Context = (props) => {
       }
     }
   };
-
-  const contextValue = {
-    SERVER_URL,
-    showDropdown,
-    setShowDropdown,
-    isAuthenticated,
-    setIsAuthenticated,
-    logout,
-    userData
-  };
-  useEffect(()=>{
   const fetchUserData=async()=>{
     const url=`${SERVER_URL}/api/user/get-profile`
        try {
@@ -57,6 +46,19 @@ const Context = (props) => {
         }
        }
    }
+
+  const contextValue = {
+    SERVER_URL,
+    showDropdown,
+    setShowDropdown,
+    isAuthenticated,
+    setIsAuthenticated,
+    logout,
+    userData,
+    fetchUserData
+  };
+  useEffect(()=>{
+
    if(JSON.parse(localStorage.getItem('isAuthenticated'))){
     fetchUserData()
    }
