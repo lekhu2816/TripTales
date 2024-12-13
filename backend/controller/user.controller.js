@@ -1,7 +1,6 @@
 import { userModel } from "../models/user.model.js";
 import fs from "fs";
 import {
-  uploadToCloudnaryMultiple,
   uploadToCloudnarySingle,
 } from "../utils/cloudinary.js";
 
@@ -45,7 +44,7 @@ const editCoverPhoto = async (req, res) => {
       });
     }
 
-    const { url } = await uploadToCloudnarySingle(file);
+    const { url } = await uploadToCloudnarySingle(file, 1280, 720);
     await userModel.findByIdAndUpdate(id, { coverPhoto: url });
     fs.unlink(file.path, (error) => {
       if (!error) {
@@ -77,7 +76,7 @@ const editProfilePhoto = async (req, res) => {
         message: "Image required",
       });
     }
-    const { url } = await uploadToCloudnarySingle(file);
+    const { url } = await uploadToCloudnarySingle(file, 600, 600);
     fs.unlink(file.path, (error) => {
       if (!error) {
         console.log("Deleted Successfully");
@@ -127,16 +126,16 @@ const editProfile = async (req, res) => {
 
 // -----------------------------Get  suggested user---------------------//
 
-const getSuggestedUser = async (req,res) => {
+const getSuggestedUser = async (req, res) => {
   const { id } = req.user;
   try {
     const suggestedUser = await userModel
       .find({ _id: { $ne: id } })
       .select("_id name userName profilePhoto");
-      res.status(200).json({
-        success:true,
-        suggestedUser
-      })
+    res.status(200).json({
+      success: true,
+      suggestedUser,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -145,59 +144,67 @@ const getSuggestedUser = async (req,res) => {
   }
 };
 
-
 // ------------------------------follow and unfollow---------------//
 
-const followAndUnfollow=async(req,res)=>{
-  const followerUser=req.user.id;  //lekhu
-  const followingToUser=req.params.id; //Himanshu
+const followAndUnfollow = async (req, res) => {
+  const followerUser = req.user.id; //lekhu
+  const followingToUser = req.params.id; //Himanshu
   try {
-    if(followerUser==followingToUser){
+    if (followerUser == followingToUser) {
       return res.status(400).json({
-        success:false,
-        message:"Cannot follow/unfollow Youself"
-      })
+        success: false,
+        message: "Cannot follow/unfollow Youself",
+      });
     }
-    const user=await userModel.findById(followerUser);
-    const targetUser=await userModel.findById(followingToUser);
-     if(!user||!targetUser){
+    const user = await userModel.findById(followerUser);
+    const targetUser = await userModel.findById(followingToUser);
+    if (!user || !targetUser) {
       return res.status(400).json({
-        success:false,
-        message:"User not found"
-      })
-     }
-     const isFollowing=user.following.includes(followingToUser);
-     if(isFollowing){
-      const response=await Promise.all([
-    userModel.updateOne({_id:followerUser},{$pull:{following:followingToUser}}),
-    userModel.updateOne({_id:followingToUser},{$pull:{followers:followerUser}})
-          ])
-         
-          res.status(200).json({
-            success:true,
-            message:"Unfollowed Successfully"
-           })
-     }
-     else{
-    const response=await Promise.all([
-    userModel.updateOne({_id:followerUser},{$push:{following:followingToUser}}),
-    userModel.updateOne({_id:followingToUser},{$push:{followers:followerUser}})
-      ])
-     
+        success: false,
+        message: "User not found",
+      });
+    }
+    const isFollowing = user.following.includes(followingToUser);
+    if (isFollowing) {
+      const response = await Promise.all([
+        userModel.updateOne(
+          { _id: followerUser },
+          { $pull: { following: followingToUser } }
+        ),
+        userModel.updateOne(
+          { _id: followingToUser },
+          { $pull: { followers: followerUser } }
+        ),
+      ]);
+
       res.status(200).json({
-        success:true,
-        message:"followed Successfully"
-       })
-     }
-   
+        success: true,
+        message: "Unfollowed Successfully",
+      });
+    } else {
+      const response = await Promise.all([
+        userModel.updateOne(
+          { _id: followerUser },
+          { $push: { following: followingToUser } }
+        ),
+        userModel.updateOne(
+          { _id: followingToUser },
+          { $push: { followers: followerUser } }
+        ),
+      ]);
+
+      res.status(200).json({
+        success: true,
+        message: "followed Successfully",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       success: false,
       message: "Error while follow and unfollow",
     });
   }
-  
-}
+};
 
 export {
   getProfile,
@@ -205,5 +212,5 @@ export {
   editProfilePhoto,
   editCoverPhoto,
   getSuggestedUser,
-  followAndUnfollow
+  followAndUnfollow,
 };

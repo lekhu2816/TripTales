@@ -32,7 +32,7 @@ const uploadToCloudnaryMultiple = async (files) => {
 
 // ------------------upload single file to the cloudniary-------------//
 
-const uploadToCloudnarySingle = async (file) => {
+const uploadToCloudnarySingle = async (file,width,height) => {
     
   cloudinary.config({
     cloud_name: process.env.CLOUDNIARY_CLOUD_NAME,
@@ -43,6 +43,13 @@ const uploadToCloudnarySingle = async (file) => {
   try {
     const response = await cloudinary.uploader.upload(file.path, {
       resource_type: resourceType,
+      transformation:{
+        width:width,
+        height:height,
+        crop:"fill",
+        gravity:"center"
+      }
+      
     });
 
     return {

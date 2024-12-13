@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
         "https://res.cloudinary.com/dlkex5mge/image/upload/v1733919894/userLogo_haalu6.png",
     },
     bio: { type: String, default: "" },
-    gender: { type: String, enum: ["male", "female"] },
+    gender: { type: String, enum: ["Male", "Female"] },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
