@@ -3,7 +3,7 @@ import { postModel } from "../models/post.model.js";
 import { commentModel } from "../models/comment.model.js";
 import { uploadToCloudnarySingle } from "../utils/cloudinary.js";
 import fs from "fs";
-import path from "path";
+
 // -------------------Create post---------------------------------//
 
 const createPost = async (req, res) => {
@@ -248,6 +248,9 @@ const deletePost = async (req, res) => {
     user.posts = user.posts.filter((id) => id.toString() != postId);
     await user.save();
 
+    //delete related comments
+    await commentModel.deleteMany({ post: postId });
+
     res.status(200).json({
       success: true,
       message: "post deleted successfully",
@@ -281,12 +284,23 @@ const bookmarkPost = async (req, res) => {
         message: "user not found",
       });
     }
-    user.bookmarks.push(postId);
-    await user.save();
-    return res.status(200).json({
-      success: true,
-      message: "Added to bookmark",
-    });
+    if(user.bookmarks.includes(postId)){
+           await user.updateOne({$pull:{bookmarks:postId}});
+           await user.save();
+           return res.status(200).json({
+            success: true,
+            message: "remove from bookmark",
+          });
+    }
+    else{
+      user.bookmarks.push(postId);
+      await user.save();
+      return res.status(200).json({
+        success: true,
+        message: "Added to bookmark",
+      });
+    }
+    
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -304,5 +318,5 @@ export {
   addComment,
   getCommentOfPost,
   deletePost,
-  bookmarkPost
+  bookmarkPost,
 };
