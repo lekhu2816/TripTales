@@ -31,7 +31,7 @@ const Home = () => {
         ))}
       </div>
 
-      <div className="p-2 w-[30%] mobile:hidden">
+      <div className="w-[30%] mobile:hidden">
         <Suggested></Suggested>
       </div>
     </div>

@@ -3,7 +3,7 @@ import coverPic from "../assets/coverPic.jpeg";
 import profile from "../assets/profile.jpg";
 const UserSidebar = () => {
   return (
-    <div className="pb-2 bg-slate-100 rounded-md">
+    <div className="pb-2  shadow rounded-md">
       <div className="relative">
         <img src={coverPic} alt="" />
         <div

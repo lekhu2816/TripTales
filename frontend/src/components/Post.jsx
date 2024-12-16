@@ -12,7 +12,7 @@ const onClickHandle=(postId)=>{
 }
 
   return (
-    <div className="p-2 flex flex-col gap-2 mobile:p-0">
+    <div className="p-2  flex flex-col gap-2 mobile:p-0">
       {/*---------section top---------- */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
