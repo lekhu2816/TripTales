@@ -15,4 +15,6 @@
 .active{
   @apply border-b-4 border-primary  text-primary 
 }
-
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}

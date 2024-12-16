@@ -24,6 +24,7 @@ import Upload from "./pages/Upload";
 import UploadPost from "./components/UploadPost";
 import UploadGallery from "./components/UploadGallery";
 import ProtectedRoutes from "./ProtectedRoutes";
+
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
