@@ -7,6 +7,7 @@ import authRoute from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import postRoute from './routes/post.routes.js';
 import messageRouter from './routes/message.routes.js';
+import AIRouter from './routes/ai.routes.js';
 
 
 const app=express();
@@ -30,6 +31,7 @@ app.use('/api/auth',authRoute);
 app.use('/api/user',userRoutes)
 app.use('/api/post',postRoute)
 app.use('/api/message',messageRouter)
+app.use('/api/ai',AIRouter)
 
 
 app.get('/',(req,res)=>{
