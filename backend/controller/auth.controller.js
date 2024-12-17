@@ -26,6 +26,7 @@ try {
  const hashedPassword=await hashPassword(password);
  const newUser=new userModel({
     name:name,
+    userName:name,
     email:email,
     password:hashedPassword,
     verificationToken:verificationToken,

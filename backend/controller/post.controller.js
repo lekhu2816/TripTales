@@ -60,11 +60,8 @@ const getPost = async (req, res) => {
   try {
     const posts = await postModel
       .find({})
-      .populate({ path: "author" })
-      .populate({
-        path: "comment",
-        populate: { path: "author", select: "name userName" },
-      });
+      .sort({ createdAt: -1 })
+      .populate({ path: "author",select:'profilePhoto userName' });
     res.status(200).json({
       success: true,
       posts,

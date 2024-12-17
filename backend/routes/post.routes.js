@@ -15,7 +15,7 @@ import {
 const postRoute = express.Router();
 
 postRoute.post("/create", authMiddleware, upload.single("image"), createPost);
-postRoute.get("/get-all", getPost);
+postRoute.get("/get-all",authMiddleware, getPost);
 postRoute.get("/getuserPost", authMiddleware, getUserPost);
 postRoute.post("/like/:id", authMiddleware, likePost);
 postRoute.post("/dislike/:id", authMiddleware, dislikePost);
