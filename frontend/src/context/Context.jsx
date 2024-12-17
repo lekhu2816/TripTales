@@ -14,10 +14,16 @@ const Context = (props) => {
   const SERVER_URL = "http://localhost:5001";
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showPostDialog, setShowPostDialog] = useState({
+  const [postDropdown, setPostDropdown] = useState({
     show: false,
+    userId: "",
     postId: "",
   });
+  const [showPostDialog, setShowPostDialog] = useState({
+    show: false,
+    postData:{},
+  });
+  const [post,setPost]=useState([])
 
   // -----------------Logout function-----------------------------//
 
@@ -36,13 +42,32 @@ const Context = (props) => {
       }
     }
   };
+
+  //-------------fetch user data--------------------//
+
   const fetchUserData = async () => {
     const url = `${SERVER_URL}/api/user/get-profile`;
     try {
       const response = await axios.get(url, { withCredentials: true });
-      console.log(response);
       if (response.status == 200) {
         setUserData(response.data.user);
+      }
+    } catch (error) {
+      if (error.status == 401) {
+        logout();
+      }
+    }
+  };
+
+  // ----------------------get all posts---------------------//
+
+  const getPosts = async () => {
+    const url = `${SERVER_URL}/api/post/get-all`;
+    try {
+      const response = await axios.get(url, { withCredentials: true });
+      console.log(response);
+      if (response.status == 200) {
+       setPost(response.data.posts)
       }
     } catch (error) {
       if (error.status == 401) {
@@ -60,12 +85,17 @@ const Context = (props) => {
     logout,
     userData,
     fetchUserData,
-    showPostDialog, 
-    setShowPostDialog
+    showPostDialog,
+    setShowPostDialog,
+    postDropdown,
+    setPostDropdown,
+    post,
+    setPost
   };
   useEffect(() => {
     if (JSON.parse(localStorage.getItem("isAuthenticated"))) {
       fetchUserData();
+      getPosts();
     }
   }, [isAuthenticated]);
 

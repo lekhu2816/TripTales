@@ -18,3 +18,7 @@
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
 }
+
+.shadow{
+  box-shadow: 0px 0px 2px black;
+}

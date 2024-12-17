@@ -1,14 +1,54 @@
-import React, { useState } from "react";
+import React, { useContext, useRef, useState } from "react";
+import { AppContext } from "../context/Context";
 import { Link } from "react-router-dom";
 import upload from "../assets/upload.jpg";
 import star from "../assets/star.png";
 import { Loader1 } from "./Loader";
+import axios from "axios";
+import { toast } from "react-toastify";
+
 const UploadPost = () => {
-  const [loading,setLoading]=useState(false);
+  const { SERVER_URL,logout } = useContext(AppContext);
+  const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(upload);
+  const inputRef = useRef();
 
+  //---------------- uploading post fuction-------------------//
 
+  const onHandleUploadPost = async () => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("caption", inputRef.current.value);
+    formData.append("image", selectedFile.file);
+    const url = `${SERVER_URL}/api/post/create`;
+    try {
+      const response = await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+      if (response.status == 200) {
+        toast.success(response.data.message, {
+          position: "bottom-right",
+        });
+      }
+    } catch (error) {
+      if (error.status == 400 || error.status == 500) {
+        toast.error(error.response.data.message);
+      }
+      if(error.status==401){
+        logout()
+      }
+    }
+    setLoading(false);
+    setSelectedFile(null);
+    setPreview(upload);
+    inputRef.current.value = "";
+  };
+
+  // ------------------handle file change--------------------------//
 
   const onChangeHandle = (event) => {
     const file = event.target.files[0];
@@ -30,7 +70,7 @@ const UploadPost = () => {
     <div className="shadow-2xl p-4 w-[40%] flex flex-col gap-2 tablet:w-full mobile:w-full mobile:shadow-none mobile:px-0 ">
       <h1 className="text-center font-semibold text-lg">Create new post</h1>
 
-        {/* ---------------------selecting image------------------- */}
+      {/* ---------------------selecting image------------------- */}
 
       <div className="  flex justify-center relative">
         {selectedFile ? (
@@ -52,36 +92,59 @@ const UploadPost = () => {
             onChange={onChangeHandle}
           />
           {selectedFile?.type == "video" ? (
-            <video autoPlay muted  src={preview} className="w-full h-[40vh] object-cover" />
+            <video
+              autoPlay
+              muted
+              src={preview}
+              className="w-full h-[40vh] object-cover"
+            />
           ) : (
-            <img className="w-full h-[40vh]  object-cover" src={preview} alt="preview" />
+            <img
+              className="w-full h-[40vh]  object-cover"
+              src={preview}
+              alt="preview"
+            />
           )}
         </label>
       </div>
 
-    {/* --------------adding desciption about image----------------------- */}
+      {/* --------------adding desciption about image----------------------- */}
 
-      <div >
+      <div>
         <div className="flex gap-2 items-center mb-2">
-            <img className="w-8" src={star} alt="star" />
-            <p className="cursor-pointer text-red-500 font-semibold">Generate using AI</p>
+          <img className="w-8" src={star} alt="star" />
+          <p className="cursor-pointer text-red-500 font-semibold">
+            Generate using AI
+          </p>
         </div>
         <textarea
+          ref={inputRef}
           className="border border-black rounded-md outline-none w-full p-2"
           placeholder="Add some text"
         ></textarea>
       </div>
 
-    {/* -----------------------uploading posts-------------------------- */}
+      {/* -----------------------uploading posts-------------------------- */}
 
-     {
-      loading?<Loader1></Loader1>: <button className="rounded-md py-2 bg-primary text-white">Share Post</button>
-     }
+      {!selectedFile ? (
+        <button className="rounded-md py-2 bg-orange-300 text-white">
+          Share Post
+        </button>
+      ) : loading ? (
+        <Loader1></Loader1>
+      ) : (
+        <button
+          onClick={onHandleUploadPost}
+          className="rounded-md py-2 bg-primary text-white"
+        >
+          Share Post
+        </button>
+      )}
 
-    {/* -------------------upload gallery----------------------------- */}
-     <div className="flex justify-end font-medium">
-     <Link to={'/upload/gallery'}>Create Gallery</Link>
-     </div>
+      {/* -------------------upload gallery----------------------------- */}
+      <div className="flex justify-end font-medium">
+        <Link to={"/upload/gallery"}>Create Gallery</Link>
+      </div>
     </div>
   );
 };

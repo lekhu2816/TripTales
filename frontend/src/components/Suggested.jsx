@@ -2,7 +2,7 @@ import React from "react";
 import profile from "../assets/profile.jpg";
 const Suggested = () => {
   return (
-    <div className="flex flex-col gap-4 p-2  shadow rounded-md">
+    <div className="flex flex-col gap-4 p-2 shadow rounded-md">
       <div className="flex justify-between">
         <h1 className="font-bold text-gray-500">Suggested for you</h1>
         <h1 className="font-semibold">see all</h1>

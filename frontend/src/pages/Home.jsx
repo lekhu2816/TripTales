@@ -5,17 +5,19 @@ import { useNavigate } from "react-router-dom";
 import UserSidebar from "../components/UserSidebar";
 import Suggested from "../components/Suggested";
 const Home = () => {
-  const { setShowDropdown } = useContext(AppContext);
+  const { setShowDropdown ,post} = useContext(AppContext);
   useEffect(() => {
     setShowDropdown(false);
   }, []);
-  const [postData, setPostData] = useState([1, 2, 3, 4, 5, 6]);
-  const navigate = useNavigate();
+  
 
+  const navigate = useNavigate();
 
   return (
     <div
-      onClick={() => setShowDropdown(false)}
+      onClick={() => {
+        setShowDropdown(false);
+      }}
       className=" flex gap-2 justify-between  relative "
     >
       <div className="py-2 w-[30%] mobile:hidden">
@@ -23,9 +25,9 @@ const Home = () => {
       </div>
 
       <div className="w-[40%] mobile:w-full">
-        {postData.map(() => (
+        {post.map((data,index) => (
           <>
-            <Post />
+            <Post key={index} postData={data}  />
             <div className="h-[1px] my-4 bg-black"></div>
           </>
         ))}
