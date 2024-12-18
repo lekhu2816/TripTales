@@ -187,11 +187,11 @@ const PostDialog = () => {
   // ------------------Bookmark post----------------------//
 
   const [isBookMarked, setIsBookMarked] = useState(
-    userData.bookmarks.includes(showPostDialog.postData._id)
+    userData.bookmarks.includes(showPostDialog.postId)
   );
 
   const bookmark = async () => {
-    const postId = showPostDialog.postData._id;
+    const postId = showPostDialog.postId;
     const url = `${SERVER_URL}/api/post/bookmark/${postId}`;
     try {
       const response = await axios.post(url, {}, { withCredentials: true });

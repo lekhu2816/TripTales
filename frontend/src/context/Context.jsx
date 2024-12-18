@@ -23,7 +23,6 @@ const Context = (props) => {
   });
   const [showPostDialog, setShowPostDialog] = useState({
     show: false,
-    postData:{},
     postId:""
   });
   const [post,setPost]=useState([])
@@ -87,6 +86,7 @@ const Context = (props) => {
     setIsAuthenticated,
     logout,
     userData,
+    setUserData,
     fetchUserData,
     showPostDialog,
     setShowPostDialog,

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/Context";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -11,7 +11,14 @@ const PostDropdown = () => {
     userData,
     post,
     setPost,
+    setUserData,
   } = useContext(AppContext);
+
+  const [isFollowing, setIsfollowing] = useState(false);
+
+  useEffect(()=>{
+     setIsfollowing(userData.following.includes(postDropdown.userId))
+  },[])
 
   const onClickHandle = () => {
     setPostDropdown({
@@ -22,7 +29,7 @@ const PostDropdown = () => {
   };
 
   const stopPropagation = (e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
   };
 
   // ------------------------------Delete post----------------------------//
@@ -56,6 +63,40 @@ const PostDropdown = () => {
     }
   };
 
+  // --------------------follow and unfollow---------------------//
+
+  const followAndUnfollow = async () => {
+    const followToUserId = postDropdown.userId;
+    const url = `${SERVER_URL}/api/user/follow-unfollow/${followToUserId}`;
+    try {
+      const response = await axios.post(url, {}, { withCredentials: true });
+      console.log(response);
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        if (isFollowing) {
+          setUserData({
+            ...userData,
+            following: userData.following.filter((id) => id !== followToUserId),
+    
+          });
+          setIsfollowing(false);
+        } else {
+          setUserData({
+            ...userData,
+            following: [...userData.following, followToUserId],
+          });
+         setIsfollowing(true)
+        }
+  
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 500)) {
+      }
+    }
+  };
+  
+
   return (
     <div
       onClick={onClickHandle}
@@ -65,9 +106,23 @@ const PostDropdown = () => {
         onClick={stopPropagation}
         className="bg-white shadow text-center rounded-md w-[30%]"
       >
-        <div className="cursor-pointer p-2 border-b-[1px] text-red-500">
-          Follow
-        </div>
+        {postDropdown.userId == userData._id ? (
+          <></>
+        ) : isFollowing ? (
+          <div
+            onClick={followAndUnfollow}
+            className="cursor-pointer p-2 border-b-[1px] text-red-500 font-bold"
+          >
+            Unfollow
+          </div>
+        ) : (
+          <div
+            onClick={followAndUnfollow}
+            className="cursor-pointer p-2 border-b-[1px] text-red-500"
+          >
+            Follow
+          </div>
+        )}
         <div className="cursor-pointer p-2 border-b-[1px]">
           Add to favourite
         </div>
