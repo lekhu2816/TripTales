@@ -206,6 +206,31 @@ const followAndUnfollow = async (req, res) => {
   }
 };
 
+
+// --------------------------Get user by id--------------------------//
+const getUserById=async(req,res)=>{
+  try {
+    const id=req.params.id
+    const user= await userModel.findById(id).select(' name userName profilePhoto coverPhoto bio following followers posts')
+    if(!user){
+       return res.status(400).json({
+        success:false,
+        message:"User not found"
+       })
+    }
+    res.status(200).json({
+      success:true,
+      user
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error while follow and unfollow",
+    });
+  }
+}
+
+
 export {
   getProfile,
   editProfile,
@@ -213,4 +238,5 @@ export {
   editCoverPhoto,
   getSuggestedUser,
   followAndUnfollow,
+  getUserById
 };

@@ -34,7 +34,7 @@ const App = () => {
         </ProtectedRoutes>}>
           <Route index element={<Home />} />
           <Route path="about" element={<About />} />
-          <Route path="profile" element={<Profile />}>
+          <Route path="profile/:id" element={<Profile />}>
             <Route index element={<Posts />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="saved" element={<Saved />} />

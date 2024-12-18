@@ -14,7 +14,7 @@ const Sidebar = () => {
       <hr />
 
       <Link
-        to={"/profile"}
+        to={`/profile/${userData._id}`}
         className="px-4 py-2 flex items-center justify-between text-lg font-semibold cursor-pointer hover:bg-gray-200"
       >
         <div className="flex items-center gap-4">

@@ -16,7 +16,21 @@ const createPost = async (req, res) => {
       message: "file is required",
     });
   }
-  const { url, fileType } = await uploadToCloudnarySingle(file);
+
+  const response= await uploadToCloudnarySingle(file,400,400); 
+  fs.unlink(file.path, (error) => {
+    if (!error) {
+      console.log("Deleted Successfully");
+    }
+  });
+
+  if(!response){
+    return res.status(400).json({
+      success: false,
+      message: "cannot upload post",
+    })
+  }
+  const { url, fileType } =response
   const post = new postModel({
     caption: caption,
     image: url,
@@ -29,11 +43,7 @@ const createPost = async (req, res) => {
     select: "profilePhoto userName",
   });
 
-  fs.unlink(file.path, (error) => {
-    if (!error) {
-      console.log("Deleted Successfully");
-    }
-  });
+
 
   const user = await userModel.findById(id);
   if (!user) {
@@ -82,7 +92,7 @@ const getPost = async (req, res) => {
 // -------------------------get user post---------------------------//
 
 const getUserPost = async (req, res) => {
-  const { id } = req.user;
+  const id = req.params.id;
   const user = await userModel
     .findById(id)
     .select("posts")
@@ -95,7 +105,7 @@ const getUserPost = async (req, res) => {
   }
   res.status(200).json({
     success: true,
-    user,
+   posts: user.posts,
   });
   try {
   } catch (error) {
@@ -105,6 +115,33 @@ const getUserPost = async (req, res) => {
     });
   }
 };
+
+// -------------------------getPostById-----------------------------------//
+
+const getPostById=async(req,res)=>{
+try {
+  const id=req.params.id
+  const post=await postModel.findById(id).populate({
+    path:'author',
+    select:'userName profilePhoto'
+  })
+  if(!post){
+    return res.status(400).json({
+      success:false,
+      message:"post not found"
+    })
+  }
+  res.status(200).json({
+    success:true,
+    post
+  })
+} catch (error) {
+  res.status(500).json({
+    success: false,
+    message: "Error while getting post",
+  });
+}
+}
 
 // ---------------------------Like post----------------------------------//
 
@@ -313,6 +350,7 @@ export {
   createPost,
   getPost,
   getUserPost,
+  getPostById,
   likePost,
   dislikePost,
   addComment,

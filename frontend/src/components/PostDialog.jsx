@@ -4,17 +4,43 @@ import profile from "../assets/profile.jpg";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-
 const PostDialog = () => {
-  const {
-    SERVER_URL,
-    showPostDialog,
-    setShowPostDialog,
-    logout,
-    post,
-    setPost,
-    userData,
-  } = useContext(AppContext);
+  const { SERVER_URL, showPostDialog, setShowPostDialog, logout, userData } =
+    useContext(AppContext);
+
+  const [postInfo, setPostInfo] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [commentCount, setCommentCount] = useState(0);
+
+  //-------------------------------Getting post information------------------//
+
+  const getPostInfo = async () => {
+    const postId = showPostDialog.postId;
+    const url = `${SERVER_URL}/api/post/get-post/${postId}`;
+    try {
+      const response = await axios.get(url, { withCredentials: true });
+      setPostInfo(response.data.post);
+      setCommentCount(response.data.post.comment.length);
+      setLikeCount(response.data.post.likes.length);
+      setLiked(response.data.post.likes.includes(userData._id));
+    } catch (error) {
+      console.log(error);
+      if (error.status == 400 || error.status == 500) {
+        console.log(error);
+      }
+      if (error.status == 401) {
+        logout();
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (showPostDialog.postId) {
+      getPostInfo();
+    }
+  }, []);
 
   const onClickHandle = () => {
     setShowPostDialog({
@@ -28,8 +54,8 @@ const PostDialog = () => {
   };
 
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false); 
-  const [isMuted, setIsMuted] = useState(true); 
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   //---------------------- Function to toggle play/pause--------------------//
 
@@ -44,8 +70,6 @@ const PostDialog = () => {
     }
   };
 
-  // Function to toggle mute/unmute
-
   const toggleMute = () => {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
@@ -54,8 +78,6 @@ const PostDialog = () => {
   };
 
   //  ----------------get post comment------------------------//
-
-  const [comments, setComments] = useState([]);
 
   const getComments = async () => {
     const postId = showPostDialog.postData._id;
@@ -92,9 +114,8 @@ const PostDialog = () => {
 
   //----------------------add comment-------------------//
 
-
   const addComment = async () => {
-    const postId = showPostDialog.postData._id;
+    const postId = showPostDialog.postId;
     const url = `${SERVER_URL}/api/post/add-comment/${postId}`;
     try {
       const response = await axios.post(
@@ -103,20 +124,10 @@ const PostDialog = () => {
         { withCredentials: true }
       );
       if (response.status == 200) {
-        const updatedData = post.map((p) => {
-          if (p._id === postId) {
-            return {
-              ...p,
-              comment: [...p.comment, userData._id],
-            };
-          }
-          return p;
-        });
-        setPost(updatedData);
-
         toast.success(response.data.message, {
           position: "bottom-right",
         });
+        setCommentCount(commentCount + 1);
         getComments();
       }
     } catch (error) {
@@ -129,12 +140,7 @@ const PostDialog = () => {
     setText("");
   };
 
-
   //----------------Like and dislike -------------------------//
-
-  const [liked, setLiked] = useState(
-    showPostDialog.postData.likes.includes(userData._id) || false
-  );
 
   const likeOrDisLikeHandler = async () => {
     const postId = showPostDialog.postData._id;
@@ -151,19 +157,7 @@ const PostDialog = () => {
             position: "bottom-right",
           });
 
-          const updatedData = post.map((p) => {
-            if (p._id == postId) {
-              {
-                return {
-                  ...p,
-                  likes: p.likes.filter((id) => id != userData._id),
-                };
-              }
-            }
-            return p;
-          });
-
-          setPost(updatedData);
+          setLikeCount(likeCount - 1);
           setLiked(false);
         }
       } catch (error) {
@@ -179,15 +173,8 @@ const PostDialog = () => {
           toast.success(response.data.message, {
             position: "bottom-right",
           });
-
-          const updatedData = post.map((p) => {
-            if (p._id == postId) {
-              p.likes.push(userData._id);
-            }
-            return p;
-          });
-          setPost(updatedData);
           setLiked(true);
+          setLikeCount(likeCount + 1);
         }
       } catch (error) {
         if (error.status == 400 || error.status == 500) {
@@ -197,12 +184,13 @@ const PostDialog = () => {
     }
   };
 
-
   // ------------------Bookmark post----------------------//
 
-  const [isBookMarked,setIsBookMarked]=useState(userData.bookmarks.includes(showPostDialog.postData._id));
+  const [isBookMarked, setIsBookMarked] = useState(
+    userData.bookmarks.includes(showPostDialog.postData._id)
+  );
 
-  const bookmark=async()=>{
+  const bookmark = async () => {
     const postId = showPostDialog.postData._id;
     const url = `${SERVER_URL}/api/post/bookmark/${postId}`;
     try {
@@ -210,15 +198,15 @@ const PostDialog = () => {
       if (response.status == 200) {
         toast.success(response.data.message, {
           position: "bottom-right",
-        })
-        setIsBookMarked(!isBookMarked)
+        });
+        setIsBookMarked(!isBookMarked);
       }
     } catch (error) {
       if (error.status == 400 || error.status == 500) {
         toast.error(error.response.data.message);
       }
     }
-  }
+  };
 
   return (
     <div
@@ -227,7 +215,7 @@ const PostDialog = () => {
     >
       <div
         onClick={stopPropagation}
-        className="p-2 flex flex-col gap-2  max-w-[40%] bg-white h-full overflow-y-scroll scrollbar-hidden mobile:max-w-full"
+        className="p-2 flex flex-col gap-2  w-[40%] bg-white h-full overflow-y-scroll scrollbar-hidden mobile:max-w-full"
       >
         {/*---------section top---------- */}
 
@@ -235,11 +223,11 @@ const PostDialog = () => {
           <div className="flex items-center gap-2">
             <img
               className="w-8 h-8 rounded-full"
-              src={showPostDialog.postData.author.profilePhoto}
+              src={postInfo ? postInfo.author.profilePhoto : ""}
               alt=""
             />
             <p className="text-sm font-medium">
-              {showPostDialog.postData.author.userName}
+              {postInfo ? postInfo.author.userName : ""}
             </p>
           </div>
           <div
@@ -253,63 +241,67 @@ const PostDialog = () => {
         {/* -----------section image  and videos------ */}
 
         <div className="relative">
-          {showPostDialog.postData.fileType === "image" ? (
-            <img
-              src={showPostDialog.postData.image}
-              alt="Post content"
-              className="media"
-            />
-          ) : (
-            <div>
-              {/* Video Element */}
-              <video
-                ref={videoRef}
-                src={showPostDialog.postData.image}
-                className="media cursor-pointer"
-                muted={isMuted}
-                onClick={togglePlayPause}
+          {postInfo &&
+            (postInfo.fileType === "image" ? (
+              <img
+                src={postInfo.image}
+                alt="Post content"
+                className="media w-full"
               />
-
-              {/* Controls */}
-
-              <div className="rounded-full bg-opacity-30 w-8 h-8 flex justify-center items-center bg-black  absolute bottom-1 left-2 text-white text-lg">
-                <i
+            ) : (
+              <div>
+                {/* Video Element */}
+                <video
+                  ref={videoRef}
+                  src={postInfo.image}
+                  className="media cursor-pointer w-full"
+                  muted={isMuted}
                   onClick={togglePlayPause}
-                  className={` fa-solid ${
-                    isPlaying ? "fa-pause" : "fa-play"
-                  }  `}
-                ></i>
-              </div>
+                />
 
-              <div className="rounded-full bg-opacity-30 w-8 h-8 flex justify-center items-center bg-black  absolute top-1 right-2 text-white text-sm">
-                <i
-                  onClick={toggleMute}
-                  className={` fa-solid ${
-                    isMuted ? "fa-volume-off" : "fa-volume-low"
-                  }   `}
-                ></i>
+                {/* Controls */}
+
+                <div className="rounded-full bg-opacity-30 w-8 h-8 flex justify-center items-center bg-black  absolute bottom-1 left-2 text-white text-lg">
+                  <i
+                    onClick={togglePlayPause}
+                    className={` fa-solid ${
+                      isPlaying ? "fa-pause" : "fa-play"
+                    }  `}
+                  ></i>
+                </div>
+
+                <div className="rounded-full bg-opacity-30 w-8 h-8 flex justify-center items-center bg-black  absolute top-1 right-2 text-white text-sm">
+                  <i
+                    onClick={toggleMute}
+                    className={` fa-solid ${
+                      isMuted ? "fa-volume-off" : "fa-volume-low"
+                    }   `}
+                  ></i>
+                </div>
               </div>
-            </div>
-          )}
+            ))}
         </div>
 
         {/*------------section for like and comment display------------- */}
 
         <div className="flex justify-between text-sm text-gray-600">
-          <p>{showPostDialog.postData.likes.length} Likes</p>
-          <p>{showPostDialog.postData.comment.length} Comments</p>
+          <p>{likeCount} Likes</p>
+          <p>{commentCount} Comments</p>
         </div>
         <hr />
 
         {/*---------section bottom for like comment and-------------- */}
 
         <div className="flex justify-between text-xl">
-          <div onClick={likeOrDisLikeHandler} className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200">
-          <i
-            className={` ${
-              liked ? "fa-solid text-red-500" : "fa-regular"
-            } fa-heart `}
-          ></i>
+          <div
+            onClick={likeOrDisLikeHandler}
+            className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200"
+          >
+            <i
+              className={` ${
+                liked ? "fa-solid text-red-500" : "fa-regular"
+              } fa-heart `}
+            ></i>
             <p className="text-sm font-medium  mobile:hidden">Like</p>
           </div>
           <div className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200">
@@ -320,17 +312,24 @@ const PostDialog = () => {
             <i className="fa-regular fa-share-from-square"></i>
             <p className="text-sm font-medium mobile:hidden">Share</p>
           </div>
-          <div onClick={bookmark} className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200">
-            <i className={`${isBookMarked?"fa-solid":"fa-regular"} fa-regular fa-bookmark`}></i>
+          <div
+            onClick={bookmark}
+            className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200"
+          >
+            <i
+              className={`${
+                isBookMarked ? "fa-solid" : "fa-regular"
+              } fa-regular fa-bookmark`}
+            ></i>
             <p className="text-sm font-medium mobile:hidden">Bookmark</p>
           </div>
         </div>
         <hr />
         {/* ------------------------caption------------------- */}
-        <div className="text-sm">{showPostDialog.postData.caption}</div>
+        <div className="text-md">{postInfo ? postInfo.caption : ""}</div>
         {/* -----------------Add comment---------------------- */}
 
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center mt-2 ">
           <img className="w-6 h-6 rounded-full" src={profile} alt="" />
           <div className="flex items-center border border-black w-full  rounded-full text-sm">
             <input

@@ -7,6 +7,7 @@ import {
   followAndUnfollow,
   getProfile,
   getSuggestedUser,
+  getUserById,
 } from "../controller/user.controller.js";
 import upload from "../utils/multer.js";
 const userRoute = express.Router();
@@ -28,6 +29,7 @@ userRoute.patch(
 userRoute.get('/suggested-user',authMiddleware,getSuggestedUser)
 userRoute.patch("/update-profile", authMiddleware, editProfile);
 userRoute.post('/follow-unfollow/:id',authMiddleware,followAndUnfollow)
+userRoute.get('/get/:id',authMiddleware,getUserById)
 
 
 export default userRoute;

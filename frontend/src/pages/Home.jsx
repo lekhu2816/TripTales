@@ -33,7 +33,7 @@ const Home = () => {
         ))}
       </div>
 
-      <div className="w-[30%] mobile:hidden">
+      <div className="py-2 w-[30%] mobile:hidden">
         <Suggested></Suggested>
       </div>
     </div>

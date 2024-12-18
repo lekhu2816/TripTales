@@ -24,6 +24,7 @@ const Context = (props) => {
   const [showPostDialog, setShowPostDialog] = useState({
     show: false,
     postData:{},
+    postId:""
   });
   const [post,setPost]=useState([])
 

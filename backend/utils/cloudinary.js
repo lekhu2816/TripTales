@@ -58,6 +58,7 @@ const uploadToCloudnarySingle = async (file,width,height) => {
     };
   } catch (error) {
     console.log("Error occured");
+    return null
   }
 };
 

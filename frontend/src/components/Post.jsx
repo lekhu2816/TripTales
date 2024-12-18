@@ -2,6 +2,7 @@ import React, { useContext, useState, useRef, act } from "react";
 import { AppContext } from "../context/Context";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const Post = ({ postData }) => {
   const {
@@ -9,15 +10,14 @@ const Post = ({ postData }) => {
     setShowPostDialog,
     setPostDropdown,
     userData,
-    post,
-    setPost,
     logout,
   } = useContext(AppContext);
 
-  const onClickHandle = () => {
+  const onClickHandle = (postId) => {
     setShowPostDialog({
       show: true,
       postData,
+      postId:postId
     });
   };
 
@@ -70,11 +70,12 @@ const Post = ({ postData }) => {
     }
   };
 
-  //----------------------add comment-------------------//
+  //----------------------add comment-------------------------------//
+
+  const [commentCount, setCommentCount] = useState(postData.comment.length);
 
   const addComment = async () => {
     const postId = postData._id;
-
     const url = `${SERVER_URL}/api/post/add-comment/${postId}`;
     try {
       const response = await axios.post(
@@ -83,20 +84,10 @@ const Post = ({ postData }) => {
         { withCredentials: true }
       );
       if (response.status == 200) {
-        const updatedData = post.map((p) => {
-          if (p._id === postId) {
-            return {
-              ...p,
-              comment: [...p.comment, userData._id],
-            };
-          }
-          return p;
-        });
-        setPost(updatedData);
-
         toast.success(response.data.message, {
           position: "bottom-right",
         });
+        setCommentCount(commentCount+1)
       }
     } catch (error) {
       if (error.status == 400 || error.status == 500) {
@@ -113,12 +104,14 @@ const Post = ({ postData }) => {
   const [liked, setLiked] = useState(
     postData.likes.includes(userData._id) || false
   );
+  const [likeCount, setLikeCount] = useState(postData.likes.length);
 
   const likeOrDisLikeHandler = async () => {
     const postId = postData._id;
     const action = liked ? "disLike" : "Like";
 
-    //------ Like the post---------
+    //------ DisLike the post-------------//
+
     if (action == "disLike") {
       const url = `${SERVER_URL}/api/post/dislike/${postId}`;
       try {
@@ -127,20 +120,8 @@ const Post = ({ postData }) => {
           toast(response.data.message, {
             position: "bottom-right",
           });
-
-          const updatedData = post.map((p) => {
-            if (p._id == postId) {
-              {
-                return {
-                  ...p,
-                  likes: p.likes.filter((id) => id != userData._id),
-                };
-              }
-            }
-            return p;
-          });
-          setPost(updatedData);
           setLiked(false);
+          setLikeCount(likeCount - 1);
         }
       } catch (error) {
         if (error.status == 400 || error.status == 500) {
@@ -156,14 +137,8 @@ const Post = ({ postData }) => {
             position: "bottom-right",
           });
 
-          const updatedData = post.map((p) => {
-            if (p._id == postId) {
-              p.likes.push(userData._id);
-            }
-            return p;
-          });
-          setPost(updatedData);
           setLiked(true);
+          setLikeCount(likeCount + 1);
         }
       } catch (error) {
         if (error.status == 400 || error.status == 500) {
@@ -175,9 +150,11 @@ const Post = ({ postData }) => {
 
   // ------------------Bookmark post----------------------//
 
-  const [isBookMarked,setIsBookMarked]=useState(userData.bookmarks.includes(postData._id));
+  const [isBookMarked, setIsBookMarked] = useState(
+    userData.bookmarks.includes(postData._id)
+  );
 
-  const bookmark=async()=>{
+  const bookmark = async () => {
     const postId = postData._id;
     const url = `${SERVER_URL}/api/post/bookmark/${postId}`;
     try {
@@ -185,16 +162,15 @@ const Post = ({ postData }) => {
       if (response.status == 200) {
         toast.success(response.data.message, {
           position: "bottom-right",
-        })
-        setIsBookMarked(!isBookMarked)
+        });
+        setIsBookMarked(!isBookMarked);
       }
     } catch (error) {
       if (error.status == 400 || error.status == 500) {
         toast.error(error.response.data.message);
       }
     }
-  }
-
+  };
 
   return (
     <div className="p-2 flex flex-col gap-2 mobile:p-0">
@@ -207,7 +183,12 @@ const Post = ({ postData }) => {
             src={postData.author.profilePhoto}
             alt=""
           />
-          <p className="text-sm font-medium">{postData.author.userName}</p>
+          <Link
+            to={`/profile/${postData.author._id}`}
+            className="text-sm font-medium"
+          >
+            {postData.author.userName}
+          </Link>
         </div>
         <div
           onClick={() =>
@@ -223,7 +204,11 @@ const Post = ({ postData }) => {
 
       <div className="relative">
         {postData.fileType == "image" ? (
-          <img src={postData.image} alt="Post content" className="media" />
+          <img
+            src={postData.image}
+            alt="Post content"
+            className="media w-full"
+          />
         ) : (
           <div>
             <video
@@ -258,8 +243,8 @@ const Post = ({ postData }) => {
       {/* ----------------like and comments------------------- */}
 
       <div className="flex justify-between text-sm text-gray-600">
-        <p>{postData.likes.length} Likes</p>
-        <p>{postData.comment.length} Comments</p>
+        <p>{likeCount} Likes</p>
+        <p>{commentCount} Comments</p>
       </div>
       <hr />
 
@@ -278,7 +263,7 @@ const Post = ({ postData }) => {
           <p className="text-sm font-medium mobile:hidden ">Like</p>
         </div>
         <div
-          onClick={() => onClickHandle()}
+          onClick={() => onClickHandle(postData._id)}
           className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200"
         >
           <i className="fa-regular fa-comment"></i>
@@ -288,8 +273,15 @@ const Post = ({ postData }) => {
           <i className="fa-regular fa-share-from-square"></i>
           <p className="text-sm font-medium mobile:hidden">Share</p>
         </div>
-        <div onClick={bookmark} className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200">
-        <i className={`${isBookMarked?"fa-solid":"fa-regular"} fa-regular fa-bookmark`}></i>
+        <div
+          onClick={bookmark}
+          className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200"
+        >
+          <i
+            className={`${
+              isBookMarked ? "fa-solid" : "fa-regular"
+            } fa-regular fa-bookmark`}
+          ></i>
           <p className="text-sm font-medium mobile:hidden">Bookmark</p>
         </div>
       </div>
