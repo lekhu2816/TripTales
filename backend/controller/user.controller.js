@@ -11,7 +11,7 @@ const getProfile = async (req, res) => {
   try {
     const user = await userModel
       .findById(id)
-      .select("_id name userName profilePhoto coverPhoto bio gender");
+      .select("_id name userName profilePhoto coverPhoto bio gender bookmarks following");
     if (!user) {
       return res.status(400).json({
         success: false,

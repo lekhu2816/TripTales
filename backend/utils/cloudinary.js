@@ -57,7 +57,7 @@ const uploadToCloudnarySingle = async (file,width,height) => {
       url: response.secure_url,
     };
   } catch (error) {
-    console.log(error);
+    console.log("Error occured");
   }
 };
 

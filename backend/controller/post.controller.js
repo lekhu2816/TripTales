@@ -23,7 +23,11 @@ const createPost = async (req, res) => {
     fileType: fileType,
     author: id,
   });
-  const newPost = await post.save();
+  let newPost = await post.save();
+  newPost = await newPost.populate({
+    path: "author",
+    select: "profilePhoto userName",
+  });
 
   fs.unlink(file.path, (error) => {
     if (!error) {
@@ -44,6 +48,7 @@ const createPost = async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Post Created successfully",
+    newPost,
   });
   try {
   } catch (error) {
@@ -61,7 +66,7 @@ const getPost = async (req, res) => {
     const posts = await postModel
       .find({})
       .sort({ createdAt: -1 })
-      .populate({ path: "author",select:'profilePhoto userName' });
+      .populate({ path: "author", select: "profilePhoto userName" });
     res.status(200).json({
       success: true,
       posts,
@@ -205,12 +210,12 @@ const getCommentOfPost = async (req, res) => {
         path: "comment",
         populate: {
           path: "author",
-          select: "name profilePhoto ",
+          select: "userName profilePhoto ",
         },
       });
     return res.status(200).json({
       success: true,
-      postComment,
+      comment: postComment.comment,
     });
   } catch (error) {
     res.status(500).json({
@@ -281,15 +286,14 @@ const bookmarkPost = async (req, res) => {
         message: "user not found",
       });
     }
-    if(user.bookmarks.includes(postId)){
-           await user.updateOne({$pull:{bookmarks:postId}});
-           await user.save();
-           return res.status(200).json({
-            success: true,
-            message: "remove from bookmark",
-          });
-    }
-    else{
+    if (user.bookmarks.includes(postId)) {
+      await user.updateOne({ $pull: { bookmarks: postId } });
+      await user.save();
+      return res.status(200).json({
+        success: true,
+        message: "remove from bookmark",
+      });
+    } else {
       user.bookmarks.push(postId);
       await user.save();
       return res.status(200).json({
@@ -297,7 +301,6 @@ const bookmarkPost = async (req, res) => {
         message: "Added to bookmark",
       });
     }
-    
   } catch (error) {
     res.status(500).json({
       success: false,
