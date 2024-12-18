@@ -1,7 +1,17 @@
 import React, { useContext } from "react";
 import { AppContext } from "../context/Context";
+import axios from "axios";
+import { toast } from "react-toastify";
 const PostDropdown = () => {
-  const {postDropdown ,setPostDropdown ,userData} = useContext(AppContext);
+  const {
+    logout,
+    SERVER_URL,
+    postDropdown,
+    setPostDropdown,
+    userData,
+    post,
+    setPost,
+  } = useContext(AppContext);
 
   const onClickHandle = () => {
     setPostDropdown({
@@ -10,10 +20,42 @@ const PostDropdown = () => {
       userId: "",
     });
   };
-console.log(postDropdown)
+
   const stopPropagation = (e) => {
-    e.stopPropagation(); // Prevents the event from bubbling up to the parent
+    e.stopPropagation(); 
   };
+
+  // ------------------------------Delete post----------------------------//
+
+  const deletePost = async () => {
+    const postId = postDropdown.postId;
+    const url = `${SERVER_URL}/api/post/delete-post/${postId}`;
+    if (confirm("Want to delete this Post")) {
+      try {
+        const response = await axios.delete(url, { withCredentials: true });
+        if (response.status == 200) {
+          toast.success(response.data.message, {
+            position: "bottom-right",
+          });
+          const updatedPost = post.filter(
+            (postItem) => postItem?._id != postId
+          );
+          setPost(updatedPost);
+          onClickHandle();
+        }
+      } catch (error) {
+        if (error.status == 400 || error.status == 500) {
+          toast.error(response.data.message, {
+            position: "bottom-right",
+          });
+        }
+        if (error.status == 401) {
+          logout();
+        }
+      }
+    }
+  };
+
   return (
     <div
       onClick={onClickHandle}
@@ -29,10 +71,19 @@ console.log(postDropdown)
         <div className="cursor-pointer p-2 border-b-[1px]">
           Add to favourite
         </div>
-        {
-          postDropdown.userId==userData._id?<div className="cursor-pointer p-2 border-b-[1px]">Delete</div>:<></>
-        }
-        <div  onClick={onClickHandle} className="cursor-pointer p-2 ">Cancel</div>
+        {postDropdown.userId == userData._id ? (
+          <div
+            onClick={deletePost}
+            className="cursor-pointer p-2 border-b-[1px]"
+          >
+            Delete
+          </div>
+        ) : (
+          <></>
+        )}
+        <div onClick={onClickHandle} className="cursor-pointer p-2 ">
+          Cancel
+        </div>
       </div>
     </div>
   );

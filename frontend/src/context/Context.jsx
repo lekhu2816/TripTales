@@ -10,6 +10,8 @@ const Context = (props) => {
     profilePhoto: "",
     coverPhoto: "",
     bio: "",
+    bookmarks:[],
+    following:[]
   });
   const SERVER_URL = "http://localhost:5001";
   const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -90,7 +92,8 @@ const Context = (props) => {
     postDropdown,
     setPostDropdown,
     post,
-    setPost
+    setPost,
+    getPosts
   };
   useEffect(() => {
     if (JSON.parse(localStorage.getItem("isAuthenticated"))) {
@@ -98,6 +101,8 @@ const Context = (props) => {
       getPosts();
     }
   }, [isAuthenticated]);
+
+  
 
   useEffect(() => {
     setIsAuthenticated(JSON.parse(localStorage.getItem("isAuthenticated")));

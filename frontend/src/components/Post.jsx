@@ -1,11 +1,19 @@
-import React, { useContext, useState, useRef } from "react";
+import React, { useContext, useState, useRef, act } from "react";
 import { AppContext } from "../context/Context";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const Post = ({ postData }) => {
-  const {SERVER_URL, setShowPostDialog, setPostDropdown, userData } =
-    useContext(AppContext);
+  const {
+    SERVER_URL,
+    setShowPostDialog,
+    setPostDropdown,
+    userData,
+    post,
+    setPost,
+    logout,
+  } = useContext(AppContext);
+
   const onClickHandle = () => {
     setShowPostDialog({
       show: true,
@@ -49,7 +57,7 @@ const Post = ({ postData }) => {
     }
   };
 
-  // ---------onComment change---------//
+  // ----------------------------onComment change---------------------//
 
   const [text, setText] = useState("");
 
@@ -57,9 +65,8 @@ const Post = ({ postData }) => {
     const value = event.target.value;
     if (value.trimStart()) {
       setText(value);
-    }
-    else{
-      setText("")
+    } else {
+      setText("");
     }
   };
 
@@ -67,23 +74,127 @@ const Post = ({ postData }) => {
 
   const addComment = async () => {
     const postId = postData._id;
-    const url=`${SERVER_URL}/api/post/add-comment/${postId}`
+
+    const url = `${SERVER_URL}/api/post/add-comment/${postId}`;
     try {
-     const response=await axios.post(url,{text},{withCredentials:true})
-     if(response.status==200){
-      toast.success(response.data.message,{
-        position:"bottom-right"
-      })
-     }
+      const response = await axios.post(
+        url,
+        { text },
+        { withCredentials: true }
+      );
+      if (response.status == 200) {
+        const updatedData = post.map((p) => {
+          if (p._id === postId) {
+            return {
+              ...p,
+              comment: [...p.comment, userData._id],
+            };
+          }
+          return p;
+        });
+        setPost(updatedData);
+
+        toast.success(response.data.message, {
+          position: "bottom-right",
+        });
+      }
     } catch (error) {
-      if(error.status==400||error.status==500){
-        toast.error(response.data.message,{
-          position:"bottom-right"
-        })
+      if (error.status == 400 || error.status == 500) {
+        toast.error(response.data.message, {
+          position: "bottom-right",
+        });
       }
     }
-    setText("")
+    setText("");
   };
+
+  //----------------Like and dislike -------------------------//
+
+  const [liked, setLiked] = useState(
+    postData.likes.includes(userData._id) || false
+  );
+
+  const likeOrDisLikeHandler = async () => {
+    const postId = postData._id;
+    const action = liked ? "disLike" : "Like";
+
+    //------ Like the post---------
+    if (action == "disLike") {
+      const url = `${SERVER_URL}/api/post/dislike/${postId}`;
+      try {
+        const response = await axios.post(url, {}, { withCredentials: true });
+        if (response.status == 200) {
+          toast(response.data.message, {
+            position: "bottom-right",
+          });
+
+          const updatedData = post.map((p) => {
+            if (p._id == postId) {
+              {
+                return {
+                  ...p,
+                  likes: p.likes.filter((id) => id != userData._id),
+                };
+              }
+            }
+            return p;
+          });
+          setPost(updatedData);
+          setLiked(false);
+        }
+      } catch (error) {
+        if (error.status == 400 || error.status == 500) {
+          toast.error(error.response.data.message);
+        }
+      }
+    } else {
+      const url = `${SERVER_URL}/api/post/like/${postId}`;
+      try {
+        const response = await axios.post(url, {}, { withCredentials: true });
+        if (response.status == 200) {
+          toast.success(response.data.message, {
+            position: "bottom-right",
+          });
+
+          const updatedData = post.map((p) => {
+            if (p._id == postId) {
+              p.likes.push(userData._id);
+            }
+            return p;
+          });
+          setPost(updatedData);
+          setLiked(true);
+        }
+      } catch (error) {
+        if (error.status == 400 || error.status == 500) {
+          toast.error(error.response.data.message);
+        }
+      }
+    }
+  };
+
+  // ------------------Bookmark post----------------------//
+
+  const [isBookMarked,setIsBookMarked]=useState(userData.bookmarks.includes(postData._id));
+
+  const bookmark=async()=>{
+    const postId = postData._id;
+    const url = `${SERVER_URL}/api/post/bookmark/${postId}`;
+    try {
+      const response = await axios.post(url, {}, { withCredentials: true });
+      if (response.status == 200) {
+        toast.success(response.data.message, {
+          position: "bottom-right",
+        })
+        setIsBookMarked(!isBookMarked)
+      }
+    } catch (error) {
+      if (error.status == 400 || error.status == 500) {
+        toast.error(error.response.data.message);
+      }
+    }
+  }
+
 
   return (
     <div className="p-2 flex flex-col gap-2 mobile:p-0">
@@ -155,8 +266,15 @@ const Post = ({ postData }) => {
       {/*---------section bottom for like comment and-------------- */}
 
       <div className="flex justify-between mobile:text-xl">
-        <div className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200">
-          <i className="fa-regular fa-heart"></i>
+        <div
+          onClick={likeOrDisLikeHandler}
+          className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200"
+        >
+          <i
+            className={` ${
+              liked ? "fa-solid text-red-500" : "fa-regular"
+            } fa-heart `}
+          ></i>
           <p className="text-sm font-medium mobile:hidden ">Like</p>
         </div>
         <div
@@ -170,8 +288,8 @@ const Post = ({ postData }) => {
           <i className="fa-regular fa-share-from-square"></i>
           <p className="text-sm font-medium mobile:hidden">Share</p>
         </div>
-        <div className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200">
-          <i className="fa-regular fa-bookmark"></i>
+        <div onClick={bookmark} className="flex items-center justify-center gap-1 p-1 w-[25%] cursor-pointer rounded-lg hover:bg-gray-200">
+        <i className={`${isBookMarked?"fa-solid":"fa-regular"} fa-regular fa-bookmark`}></i>
           <p className="text-sm font-medium mobile:hidden">Bookmark</p>
         </div>
       </div>
@@ -179,11 +297,11 @@ const Post = ({ postData }) => {
 
       {/* ------------------------caption------------------- */}
 
-      <div className="text-sm">{postData.caption}</div>
+      <div className="text-md">{postData.caption}</div>
 
       {/* -----------------Add comment---------------------- */}
 
-      <div className="flex gap-2 items-center">
+      <div className="mt-2 flex gap-2 items-center">
         <img
           className="w-6 h-6 rounded-full"
           src={userData.profilePhoto}
@@ -198,7 +316,10 @@ const Post = ({ postData }) => {
             placeholder="Add comment"
           />
           {text ? (
-            <p onClick={addComment} className="cursor-pointer bg-gray-200 py-1 px-2 rounded-r-full text-gray-800">
+            <p
+              onClick={addComment}
+              className="cursor-pointer bg-gray-200 py-1 px-2 rounded-r-full text-gray-800"
+            >
               Comment
             </p>
           ) : (

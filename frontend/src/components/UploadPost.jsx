@@ -8,7 +8,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const UploadPost = () => {
-  const { SERVER_URL,logout } = useContext(AppContext);
+  const { SERVER_URL,logout,post,setPost } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(upload);
@@ -29,7 +29,9 @@ const UploadPost = () => {
         },
         withCredentials: true,
       });
+      console.log(response.data.newPost)
       if (response.status == 200) {
+        setPost([response.data.newPost,...post])
         toast.success(response.data.message, {
           position: "bottom-right",
         });
@@ -37,6 +39,7 @@ const UploadPost = () => {
     } catch (error) {
       if (error.status == 400 || error.status == 500) {
         toast.error(error.response.data.message);
+        
       }
       if(error.status==401){
         logout()
@@ -46,6 +49,7 @@ const UploadPost = () => {
     setSelectedFile(null);
     setPreview(upload);
     inputRef.current.value = "";
+    console.log(post)
   };
 
   // ------------------handle file change--------------------------//
