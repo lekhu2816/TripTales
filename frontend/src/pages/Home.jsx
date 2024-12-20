@@ -11,8 +11,6 @@ const Home = () => {
   }, []);
   
 
-  const navigate = useNavigate();
-
   return (
     <div
       onClick={() => {

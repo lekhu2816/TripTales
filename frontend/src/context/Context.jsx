@@ -3,6 +3,7 @@ export const AppContext = createContext(null);
 import axios from "axios";
 import { toast } from "react-toastify";
 const Context = (props) => {
+  const [socket, setSocket] = useState(null);
   const [userData, setUserData] = useState({
     _id: "",
     name: "",
@@ -10,8 +11,8 @@ const Context = (props) => {
     profilePhoto: "",
     coverPhoto: "",
     bio: "",
-    bookmarks:[],
-    following:[]
+    bookmarks: [],
+    following: [],
   });
   const SERVER_URL = "http://localhost:5001";
   const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -23,9 +24,9 @@ const Context = (props) => {
   });
   const [showPostDialog, setShowPostDialog] = useState({
     show: false,
-    postId:""
+    postId: "",
   });
-  const [post,setPost]=useState([])
+  const [post, setPost] = useState([]);
 
   // -----------------Logout function-----------------------------//
 
@@ -67,9 +68,8 @@ const Context = (props) => {
     const url = `${SERVER_URL}/api/post/get-all`;
     try {
       const response = await axios.get(url, { withCredentials: true });
-      console.log(response);
       if (response.status == 200) {
-       setPost(response.data.posts)
+        setPost(response.data.posts);
       }
     } catch (error) {
       if (error.status == 401) {
@@ -77,6 +77,29 @@ const Context = (props) => {
       }
     }
   };
+
+  //-------------------------- get suggested users------------------------//
+  const [suggestedUser, setSuggestedUser] = useState([]);
+
+  const fetchSuggestedUsers = async () => {
+    const url = `${SERVER_URL}/api/user/suggested-user`;
+    try {
+      const response = await axios.get(url, { withCredentials: true });
+      if (response.status == 200) {
+        setSuggestedUser(response.data.suggestedUser);
+      }
+    } catch (error) {
+      if (error.status == 401) {
+        logout();
+      }
+    }
+  };
+
+  // --------------------------Chatting controls-------------------------//
+
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [message, setMessage] = useState([]);
 
   const contextValue = {
     SERVER_URL,
@@ -94,16 +117,24 @@ const Context = (props) => {
     setPostDropdown,
     post,
     setPost,
-    getPosts
+    getPosts,
+    selectedUser,
+    setSelectedUser,
+    socket,
+    setSocket,
+    onlineUsers,
+    setOnlineUsers,
+    suggestedUser,
+    message,
+    setMessage
   };
   useEffect(() => {
     if (JSON.parse(localStorage.getItem("isAuthenticated"))) {
       fetchUserData();
       getPosts();
+      fetchSuggestedUsers();
     }
   }, [isAuthenticated]);
-
-  
 
   useEffect(() => {
     setIsAuthenticated(JSON.parse(localStorage.getItem("isAuthenticated")));

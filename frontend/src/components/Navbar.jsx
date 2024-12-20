@@ -63,9 +63,9 @@ const Navbar = () => {
           <Link to={'/upload'}>
             <i className="p-2 text-4xl  material-icons ">add_circle </i>
           </Link>
-          <div>
+          <Link to={'/chat'}>
             <i className="p-2 text-4xl material-icons ">chat</i>
-          </div>
+          </Link>
 
           <div onClick={()=>setShowDropdown(true)}>
             <img className="w-8 h-8 rounded-full" src={userData.profilePhoto} alt="" />

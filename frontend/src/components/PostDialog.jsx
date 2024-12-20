@@ -3,6 +3,7 @@ import { AppContext } from "../context/Context";
 import profile from "../assets/profile.jpg";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Loader3 } from "./Loader";
 
 const PostDialog = () => {
   const { SERVER_URL, showPostDialog, setShowPostDialog, logout, userData } =
@@ -215,7 +216,7 @@ const PostDialog = () => {
     >
       <div
         onClick={stopPropagation}
-        className="p-2 flex flex-col gap-2  w-[40%] bg-white h-full overflow-y-scroll scrollbar-hidden mobile:max-w-full"
+        className="p-2 flex flex-col gap-2  w-[40%] bg-white h-full overflow-y-scroll no-scrollbar  mobile:w-full tablet:w-[70%]"
       >
         {/*---------section top---------- */}
 
@@ -355,7 +356,9 @@ const PostDialog = () => {
         </div>
         <hr />
         {/* --------------all comments------------------ */}
-        <div className="flex flex-col gap-4 mt-4">
+
+        {
+          comments.length<0 ?<Loader3></Loader3>:        <div className="flex flex-col gap-4 mt-4">
           {comments.map((comment, index) => {
             return (
               <div key={index} className="flex gap-4 items-start">
@@ -375,6 +378,8 @@ const PostDialog = () => {
             );
           })}
         </div>
+        }
+
       </div>
     </div>
   );

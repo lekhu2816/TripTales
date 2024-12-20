@@ -22,4 +22,15 @@ const Loader2 = () => {
   );
 };
 
-export { Loader1, Loader2 };
+const Loader3 = () => {
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <div className="skeleton h-20 w-full"></div>
+      <div className="skeleton h-4 w-full"></div>
+      <div className="skeleton h-4 w-full"></div>
+      <div className="skeleton h-4 w-full"></div>
+    </div>
+  );
+};
+
+export { Loader1,Loader2,Loader3};

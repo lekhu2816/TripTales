@@ -50,7 +50,7 @@ const getMessage = async (req, res) => {
       .findOne({
         participants: { $all: [senderId, recieverId] },
       })
-      .populate({ path: "message", select: "message image" });
+      .populate({ path: "message" });
     if (!conversation) {
       return res.status(200).json({
         success: true,
@@ -59,7 +59,7 @@ const getMessage = async (req, res) => {
     } else {
       return res.status(200).json({
         success: true,
-        messages: conversation.message,
+        message: conversation.message,
       });
     }
   } catch (error) {

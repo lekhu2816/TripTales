@@ -15,10 +15,20 @@
 .active{
   @apply border-b-4 border-primary  text-primary 
 }
-.scrollbar-hidden::-webkit-scrollbar {
-  display: none;
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+ /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+}
 }
 
 .shadow{
   box-shadow: 0px 0px 2px black;
 }
+
+
