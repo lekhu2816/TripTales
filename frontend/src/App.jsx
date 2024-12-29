@@ -68,7 +68,7 @@ const router = createBrowserRouter(
 
 const App = () => {
   
-  const {userData,SERVER_URL, setSocket,setOnlineUsers}=useContext(AppContext)
+  const {userData,SERVER_URL, setSocket,setOnlineUsers,socket}=useContext(AppContext)
   useEffect(()=>{
    if(userData){
     const socketio=io(SERVER_URL,{
@@ -84,6 +84,7 @@ const App = () => {
     socketio.on('getOnlineUsers',(onlineUsers)=>{
       setOnlineUsers(onlineUsers);
     })
+
     return ()=>{
       socketio.close()
       setSocket(null)
@@ -92,7 +93,7 @@ const App = () => {
    }
    else{
     return ()=>{
-      socketio.close()
+      socket.close()
       setSocket(null)
      
     }

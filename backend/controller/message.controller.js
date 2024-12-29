@@ -1,5 +1,6 @@
 import { conversationModel } from "../models/conversation.model.js";
 import { messageModel } from "../models/message.model.js";
+import { getRecieverSocketId, io } from "../socket/socket.js";
 
 const sendMessage = async (req, res) => {
   try {
@@ -28,9 +29,17 @@ const sendMessage = async (req, res) => {
     }
     await conversation.save();
 
+    // implement socket io for realtime chatting
+
+    const recieverSocketId = getRecieverSocketId(recieverId);
+    console.log(recieverSocketId);
+    if (recieverSocketId) {
+      io.to(recieverSocketId).emit("newMessage", newMessage);
+    }
+
     res.status(200).json({
       success: true,
-      message: "message send successfully",
+      newMessage,
     });
   } catch (error) {
     res.status(500).json({

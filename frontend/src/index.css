@@ -31,4 +31,6 @@
   box-shadow: 0px 0px 2px black;
 }
 
-
+::-webkit-scrollbar{
+  scroll-behavior: smooth;
+}

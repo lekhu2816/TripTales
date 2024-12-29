@@ -6,13 +6,26 @@ import star from "../assets/star.png";
 import { Loader1 } from "./Loader";
 import axios from "axios";
 import { toast } from "react-toastify";
+const postTags = [
+  "Mountains",
+  "Valley",
+  "Desert",
+  "Trekking",
+  "Camping",
+  "Monuments",
+  "Waterfalls",
+  "Valleys",
+  "Zoos",
+  "Festivals",
+];
 
 const UploadPost = () => {
-  const { SERVER_URL,logout,post,setPost } = useContext(AppContext);
+  const { SERVER_URL, logout, post, setPost } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(upload);
   const inputRef = useRef();
+  const [tag,setTag]=useState("")
 
   //---------------- uploading post fuction-------------------//
 
@@ -21,6 +34,7 @@ const UploadPost = () => {
     const formData = new FormData();
     formData.append("caption", inputRef.current.value);
     formData.append("image", selectedFile.file);
+    formData.append("tag",tag)
     const url = `${SERVER_URL}/api/post/create`;
     try {
       const response = await axios.post(url, formData, {
@@ -29,9 +43,9 @@ const UploadPost = () => {
         },
         withCredentials: true,
       });
-      console.log(response.data.newPost)
+      console.log(response.data.newPost);
       if (response.status == 200) {
-        setPost([response.data.newPost,...post])
+        setPost([response.data.newPost, ...post]);
         toast.success(response.data.message, {
           position: "bottom-right",
         });
@@ -39,17 +53,16 @@ const UploadPost = () => {
     } catch (error) {
       if (error.status == 400 || error.status == 500) {
         toast.error(error.response.data.message);
-        
       }
-      if(error.status==401){
-        logout()
+      if (error.status == 401) {
+        logout();
       }
     }
     setLoading(false);
     setSelectedFile(null);
     setPreview(upload);
     inputRef.current.value = "";
-    console.log(post)
+    console.log(post);
   };
 
   // ------------------handle file change--------------------------//
@@ -126,6 +139,16 @@ const UploadPost = () => {
           className="border border-black rounded-md outline-none w-full p-2"
           placeholder="Add some text"
         ></textarea>
+      </div>
+
+      {/* -----------------------post tags------------------------------- */}
+
+      <div className="flex gap-2 overflow-x-auto no-scrollbar">
+        {postTags.map((name, index) => (
+          <div onClick={()=>setTag(name)}  className={`py-1 px-2 border border-black rounded-full text-xs cursor-pointer ${tag==name?"bg-secondary text-white border-secondary":""}`}>
+            {name}
+          </div>
+        ))}
       </div>
 
       {/* -----------------------uploading posts-------------------------- */}

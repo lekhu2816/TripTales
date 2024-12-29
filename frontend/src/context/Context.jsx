@@ -101,6 +101,21 @@ const Context = (props) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [message, setMessage] = useState([]);
 
+
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("newMessage", (m) => {
+        setMessage((prevMessages) => [...prevMessages, m]);
+      });
+  
+      // Cleanup listener on unmount
+      return () => {
+        socket.off("newMessage");
+      };
+    }
+  }, [socket]);
+
   const contextValue = {
     SERVER_URL,
     showDropdown,
