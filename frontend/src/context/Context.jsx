@@ -27,6 +27,8 @@ const Context = (props) => {
     postId: "",
   });
   const [post, setPost] = useState([]);
+  const [notification, setNotification] = useState([]);
+  const [explorePost, setExplorePost] = useState([]);
 
   // -----------------Logout function-----------------------------//
 
@@ -62,23 +64,8 @@ const Context = (props) => {
     }
   };
 
-  // ----------------------get all posts---------------------//
-
-  const getPosts = async () => {
-    const url = `${SERVER_URL}/api/post/get-all`;
-    try {
-      const response = await axios.get(url, { withCredentials: true });
-      if (response.status == 200) {
-        setPost(response.data.posts);
-      }
-    } catch (error) {
-      if (error.status == 401) {
-        logout();
-      }
-    }
-  };
-
   //-------------------------- get suggested users------------------------//
+
   const [suggestedUser, setSuggestedUser] = useState([]);
 
   const fetchSuggestedUsers = async () => {
@@ -101,14 +88,12 @@ const Context = (props) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [message, setMessage] = useState([]);
 
-
-
   useEffect(() => {
     if (socket) {
       socket.on("newMessage", (m) => {
         setMessage((prevMessages) => [...prevMessages, m]);
       });
-  
+
       // Cleanup listener on unmount
       return () => {
         socket.off("newMessage");
@@ -132,7 +117,6 @@ const Context = (props) => {
     setPostDropdown,
     post,
     setPost,
-    getPosts,
     selectedUser,
     setSelectedUser,
     socket,
@@ -141,12 +125,15 @@ const Context = (props) => {
     setOnlineUsers,
     suggestedUser,
     message,
-    setMessage
+    setMessage,
+    notification,
+    setNotification,
+    explorePost, 
+    setExplorePost
   };
   useEffect(() => {
     if (JSON.parse(localStorage.getItem("isAuthenticated"))) {
       fetchUserData();
-      getPosts();
       fetchSuggestedUsers();
     }
   }, [isAuthenticated]);

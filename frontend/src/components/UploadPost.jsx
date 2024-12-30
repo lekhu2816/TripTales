@@ -12,11 +12,13 @@ const postTags = [
   "Desert",
   "Trekking",
   "Camping",
+  "Rafting",
   "Monuments",
   "Waterfalls",
-  "Valleys",
   "Zoos",
   "Festivals",
+  "Beach",
+  "Nature",
 ];
 
 const UploadPost = () => {

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 const postSchema= new mongoose.Schema({
    caption:{type:String,default:""},
+   tag:{type:String,default:""},
    image:{type:String,required:true},
    likes:[{type:mongoose.Schema.Types.ObjectId,ref:'User'}],
    fileType:{type:String,enum:['image','video']},

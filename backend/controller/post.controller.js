@@ -9,7 +9,7 @@ import fs from "fs";
 const createPost = async (req, res) => {
   const { id } = req.user;
   const file = req.file;
-  const { caption } = req.body;
+  const { caption, tag } = req.body;
   if (!file) {
     return res.status(400).json({
       success: false,
@@ -17,22 +17,23 @@ const createPost = async (req, res) => {
     });
   }
 
-  const response= await uploadToCloudnarySingle(file,400,400); 
+  const response = await uploadToCloudnarySingle(file, 400, 400);
   fs.unlink(file.path, (error) => {
     if (!error) {
       console.log("Deleted Successfully");
     }
   });
 
-  if(!response){
+  if (!response) {
     return res.status(400).json({
       success: false,
       message: "cannot upload post",
-    })
+    });
   }
-  const { url, fileType } =response
+  const { url, fileType } = response;
   const post = new postModel({
     caption: caption,
+    tag: tag,
     image: url,
     fileType: fileType,
     author: id,
@@ -42,8 +43,6 @@ const createPost = async (req, res) => {
     path: "author",
     select: "profilePhoto userName",
   });
-
-
 
   const user = await userModel.findById(id);
   if (!user) {
@@ -73,9 +72,14 @@ const createPost = async (req, res) => {
 
 const getPost = async (req, res) => {
   try {
+    let { page = 0, limit = 10 } = req.query;
+    page=parseInt(page)
+    limit=parseInt(limit)
     const posts = await postModel
       .find({})
       .sort({ createdAt: -1 })
+      .skip(page*limit)
+      .limit(limit)
       .populate({ path: "author", select: "profilePhoto userName" });
     res.status(200).json({
       success: true,
@@ -105,7 +109,7 @@ const getUserPost = async (req, res) => {
   }
   res.status(200).json({
     success: true,
-   posts: user.posts,
+    posts: user.posts,
   });
   try {
   } catch (error) {
@@ -118,30 +122,30 @@ const getUserPost = async (req, res) => {
 
 // -------------------------getPostById-----------------------------------//
 
-const getPostById=async(req,res)=>{
-try {
-  const id=req.params.id
-  const post=await postModel.findById(id).populate({
-    path:'author',
-    select:'userName profilePhoto'
-  })
-  if(!post){
-    return res.status(400).json({
-      success:false,
-      message:"post not found"
-    })
+const getPostById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const post = await postModel.findById(id).populate({
+      path: "author",
+      select: "userName profilePhoto",
+    });
+    if (!post) {
+      return res.status(400).json({
+        success: false,
+        message: "post not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      post,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error while getting post",
+    });
   }
-  res.status(200).json({
-    success:true,
-    post
-  })
-} catch (error) {
-  res.status(500).json({
-    success: false,
-    message: "Error while getting post",
-  });
-}
-}
+};
 
 // ---------------------------Like post----------------------------------//
 
@@ -346,6 +350,39 @@ const bookmarkPost = async (req, res) => {
   }
 };
 
+
+// -------------------------Explore posts-----------------------------//
+
+const explorePost=async(req,res)=>{
+ try {
+  let {tag,page=0,limit=10}=req.query;
+  tag=JSON.parse(tag)
+  page=parseInt(page)
+  limit=parseInt(limit)
+
+  if(!tag){
+    const posts=await postModel.find({}).limit(limit).skip(limit*page)
+    return res.status(200).json({
+      success:true,
+      posts
+    })
+  }
+  else{
+    const posts=await postModel.find({tag:tag}).limit(limit).skip(limit*page)
+    return res.status(200).json({
+      success:true,
+      posts
+    })
+  }
+
+ } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error while exploring post",
+    });
+ }
+}
+
 export {
   createPost,
   getPost,
@@ -357,4 +394,5 @@ export {
   getCommentOfPost,
   deletePost,
   bookmarkPost,
+  explorePost
 };

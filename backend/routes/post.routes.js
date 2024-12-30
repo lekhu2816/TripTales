@@ -7,6 +7,7 @@ import {
   createPost,
   deletePost,
   dislikePost,
+  explorePost,
   getCommentOfPost,
   getPost,
   getPostById,
@@ -25,5 +26,6 @@ postRoute.post('/add-comment/:id',authMiddleware,addComment)
 postRoute.get('/get-comment/:id',getCommentOfPost);
 postRoute.delete('/delete-post/:id',authMiddleware,deletePost);
 postRoute.post('/bookmark/:id',authMiddleware,bookmarkPost)
+postRoute.get('/explore-post',authMiddleware,explorePost)
 
 export default postRoute;
